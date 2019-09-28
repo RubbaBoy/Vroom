@@ -1,11 +1,11 @@
 package com.github.vroom;
 
 import com.github.vroom.input.keyboard.KeyboardInputManager;
-import org.lwjgl.glfw.GLFWKeyCallback;
+import com.github.vroom.input.mouse.MouseInputMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
+import static org.lwjgl.opengl.GL11.glViewport;
 
 public final class Vroom {
 
@@ -16,20 +16,26 @@ public final class Vroom {
     private static final int TARGET_UPS = 30;
 
     private final Window window;
+
+    private final MouseInputMethod mouseInputMethod;
+
     private final KeyboardInputManager keyboardInputManager;
 
     public Vroom(Window window) {
         this.window = window;
+        this.mouseInputMethod = new MouseInputMethod();
         this.keyboardInputManager = new KeyboardInputManager();
+    }
+
+    private void init() {
+        window.init();
+        keyboardInputManager.init(window);
+        mouseInputMethod.init(window);
     }
 
     public void run() {
         init();
         gameLoop();
-    }
-
-    private void init() {
-        window.init(this);
     }
 
     private void gameLoop() {
@@ -60,7 +66,7 @@ public final class Vroom {
     }
 
     private void handleInput() {
-
+        mouseInputMethod.input();
     }
 
     private void update() {
@@ -68,7 +74,12 @@ public final class Vroom {
     }
 
     private void render() {
-        window.update();
+        if (window.isResized()) {
+            glViewport(0, 0, window.getWidth(), window.getHeight());
+            window.setResized(false);
+        }
+
+        window.render();
     }
 
     private void cleanup() {
@@ -94,5 +105,9 @@ public final class Vroom {
 
     public KeyboardInputManager getKeyboardInputManager() {
         return keyboardInputManager;
+    }
+
+    public MouseInputMethod getMouseInputMethod() {
+        return mouseInputMethod;
     }
 }

@@ -57,7 +57,7 @@ public final class Window {
         this.vSync = vSync;
     }
 
-    public void init(Vroom vroom) {
+    public void init() {
         GLFWErrorCallback.createPrint(System.err).set();
 
         if (!glfwInit()) {
@@ -100,11 +100,9 @@ public final class Window {
 
         glEnable(GL_DEPTH_TEST);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-        vroom.getKeyboardInputManager().init(this);
     }
 
-    public void update() {
+    public void render() {
         glfwSwapBuffers(handle);
         glfwPollEvents();
     }

@@ -24,9 +24,8 @@ public class KeyboardInputManager {
         this.listenerMap = new HashMap<>();
     }
 
-    public KeyListener addListener(KeyCombo keyCombo, KeyListener keyListener) {
-        listenerMap.computeIfAbsent(keyCombo, i -> new ArrayList<>()).add(keyListener);
-        return keyListener;
+    public void addListener(KeyCombo keyCombo, KeyListener keyListener) {
+        listenerMap.computeIfAbsent(keyCombo, $ -> new ArrayList<>()).add(keyListener);
     }
 
     public void init(Window window) {
@@ -37,19 +36,17 @@ public class KeyboardInputManager {
                 return;
             }
 
-            listeners.forEach(listener -> {
-                switch (action) {
-                    case GLFW_PRESS:
-                        listener.keyPressed();
-                        break;
-                    case GLFW_RELEASE:
-                        listener.keyReleased();
-                        break;
-                    case GLFW_REPEAT:
-                        listener.keyRepeated();
+            switch (action) {
+                case GLFW_PRESS:
+                    listeners.forEach(KeyListener::keyPressed);
                     break;
-                }
-            });
+                case GLFW_RELEASE:
+                    listeners.forEach(KeyListener::keyReleased);
+                    break;
+                case GLFW_REPEAT:
+                    listeners.forEach(KeyListener::keyRepeated);
+                    break;
+            }
         }));
     }
 
