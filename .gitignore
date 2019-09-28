@@ -2,5 +2,7 @@
 out/
 .idea_modules/
 build/
+.gradle/
 *.iws
 *.iml
+*floo*
