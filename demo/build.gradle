@@ -2,6 +2,24 @@ plugins {
     id 'java'
 }
 
+repositories {
+    mavenCentral()
+}
+
+
+project.ext.lwjglVersion = "3.2.3"
+project.ext.lwjglNatives = "natives-windows"
+
 dependencies {
     implementation project(':')
+
+    implementation 'org.slf4j:slf4j-log4j12:1.7.28'
+
+    // Remove later
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+
+    implementation 'org.lwjgl:lwjgl'
+    implementation 'org.lwjgl:lwjgl-glfw'
+    implementation 'org.lwjgl:lwjgl-opengl'
+    implementation 'org.lwjgl:lwjgl-stb'
 }

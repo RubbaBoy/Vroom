@@ -23,7 +23,6 @@ dependencies {
     implementation 'org.lwjgl:lwjgl-stb'
     implementation 'org.joml:joml:1.9.17'
     implementation 'org.slf4j:slf4j-api:1.7.28'
-    implementation 'org.slf4j:slf4j-log4j12:1.7.28'
 
     runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
