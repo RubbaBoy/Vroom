@@ -62,7 +62,7 @@ public final class KeyboardInputManager {
     }
 
     public void cleanup() {
-        keyCallback.free();
+        if (keyCallback != null) keyCallback.free();
     }
 
     public boolean isKeyPressed(int key) {

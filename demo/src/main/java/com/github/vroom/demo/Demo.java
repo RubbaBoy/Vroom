@@ -5,9 +5,11 @@ import com.github.vroom.input.keyboard.KeyCombo;
 import com.github.vroom.input.keyboard.KeyListener;
 import com.github.vroom.input.mouse.MouseListener;
 import com.github.vroom.render.Window;
+import com.github.vroom.render.light.PointLight;
 import com.github.vroom.render.mesh.Mesh;
 import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +24,16 @@ public class Demo {
         var objManager = new ObjManager<MeshFile>();
         objManager.queueObj(MeshFile.CUBE).waitForObjects();
 
-        var vroom = new Vroom(new Window("Demo", 800, 600, false, false), objManager);
+        var ambientLight = new Vector3f(0.1f, 0.1f, 0.1f);
+
+        var lightColor = new Vector3f(1, 1, 1);
+        var lightPosition = new Vector3f(2, 2, 5);
+        float lightIntensity = 3f;
+        var pointLight = new PointLight(lightColor, lightPosition, lightIntensity);
+        var att = new PointLight.Attenuation(0.5f, 0.0f, 0.5f);
+        pointLight.setAttenuation(att);
+
+        var vroom = new Vroom(new Window("Demo", 800, 600, false, false), objManager, ambientLight, pointLight);
 
         Mesh mesh = objManager.get(MeshFile.CUBE);
 
@@ -30,7 +41,7 @@ public class Demo {
             for (int y = 0; y < 53; y++) {
                 var renderObject = new RenderObject(mesh);
                 renderObject.setScale(0.5F);
-                renderObject.setPosition(x, x % 2 == 0 ? -1 : 0, y);
+                renderObject.setPosition(x, 0, y);
                 renderObject.setRotation(0, 0, 0);
                 vroom.addRenderObject(renderObject);
             }

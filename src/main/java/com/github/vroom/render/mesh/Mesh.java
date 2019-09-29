@@ -1,6 +1,6 @@
 package com.github.vroom.render.mesh;
 
-import com.github.vroom.render.Texture;
+import com.github.vroom.render.light.Material;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 
@@ -34,7 +34,7 @@ import static org.lwjgl.system.MemoryUtil.memFree;
 
 public final class Mesh {
 
-    private static final Vector3f DEFAULT_COLOUR = new Vector3f(1.0f, 1.0f, 1.0f);
+    private static final Vector3f DEFAULT_COLOR = new Vector3f(1.0f, 1.0f, 1.0f);
 
     private int vaoId;
 
@@ -44,7 +44,7 @@ public final class Mesh {
 
     private Vector3f color;
 
-    private Texture texture;
+    private Material material;
 
     // Used by copnstructor
 
@@ -67,7 +67,7 @@ public final class Mesh {
         FloatBuffer vecNormalsBuffer = null;
 
         try {
-            color = DEFAULT_COLOUR;
+            color = DEFAULT_COLOR;
             vertexCount = indices.length;
             vboIdList = new ArrayList<>();
 
@@ -147,6 +147,7 @@ public final class Mesh {
         }
 
         // Delete the texture
+        var texture = material.getTexture();
         if (texture != null) {
             texture.cleanup();
         }
@@ -156,6 +157,7 @@ public final class Mesh {
     }
 
     public void render() {
+        var texture = material.getTexture();
         if (texture != null) {
             // Activate firs texture bank
             glActiveTexture(GL_TEXTURE0);
@@ -183,15 +185,16 @@ public final class Mesh {
         return color;
     }
 
-    public Texture getTexture() {
-        return texture;
-    }
-
     public void setColor(Vector3f color) {
         this.color = color;
     }
 
-    public void setTexture(Texture texture) {
-        this.texture = texture;
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
     }
 }
+

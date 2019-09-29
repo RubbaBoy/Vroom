@@ -23,7 +23,7 @@ public class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
         this.processingCallables = new ArrayList<>();
     }
 
-    public ObjManager queueObj(E e) {
+    public ObjManager<E> queueObj(E e) {
         processingCallables.add(() -> {
             var mesh = ObjLoader.loadMesh(e.getRelativePath());
             meshMap.put(e, mesh);
@@ -45,7 +45,7 @@ public class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
     public void createMeshes() {
         meshMap.forEach((e, mesh) -> {
             mesh.createMesh();
-            mesh.setTexture(new Texture(e.getTexturePath()));
+            mesh.setMaterial(e.getMaterial().setTexture(new Texture(e.getTexturePath())));
         });
     }
 
