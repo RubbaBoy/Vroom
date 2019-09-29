@@ -10,9 +10,8 @@ import com.github.vroom.render.camera.Camera;
 import com.github.vroom.render.camera.CameraTransformationManager;
 import com.github.vroom.render.camera.modifiers.CameraDefaultMovementModifier;
 import com.github.vroom.render.camera.modifiers.CameraDefaultRotationModifier;
-import com.github.vroom.render.obj.OBJLoader;
+import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
-import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +29,11 @@ public final class Vroom {
 
     private static final int TARGET_UPS = 30;
 
-    private Vector3f cameraInc = new Vector3f(0, 0, 0);
-
     private final Window window;
 
     private final Camera camera;
+
+    private final ObjManager objManager;
 
     private final CameraTransformationManager cameraTransformationManager;
 
@@ -49,6 +48,7 @@ public final class Vroom {
     public Vroom(Window window) {
         this.window = window;
         this.camera = new Camera();
+        this.objManager = new ObjManager();
         this.cameraTransformationManager = new CameraTransformationManager(this, camera);
         this.renderer = new Renderer();
         this.mouseInputMethod = new MouseInputMethod();
@@ -65,17 +65,25 @@ public final class Vroom {
         try {
             renderer.init();
 
-            Mesh mesh = OBJLoader.loadMesh("/models/cube.obj");
+            var start = System.currentTimeMillis();
+            objManager
+                    .queueObj("/models/cube.obj")
+                    .waitForObjects();
+
+            Mesh mesh = objManager.getOrThrowObj("/models/cube.obj");
+
             mesh.setTexture(new Texture("textures/grassblock.png"));
             for (int x = 0; x < 5; x++) {
                 for (int y = 0; y < 53; y++) {
                     var renderObject = new RenderObject(mesh);
                     renderObject.setScale(0.5F);
-                    renderObject.setPosition(x, -1, y);
+                    renderObject.setPosition(x, x % 2 == 0 ? -1 : 0, y);
                     renderObject.setRotation(0, 0, 0);
                     addRenderObject(renderObject);
                 }
             }
+
+            LOGGER.info("Completed in {}ms", System.currentTimeMillis() - start);
         } catch (IOException e) {
             LOGGER.error("Exception while creating Renderer!", e);
         }
@@ -85,8 +93,12 @@ public final class Vroom {
     }
 
     public void run() {
-        init();
-        gameLoop();
+        try {
+            init();
+            gameLoop();
+        } finally {
+            cleanup();
+        }
     }
 
     private void gameLoop() {
@@ -122,10 +134,6 @@ public final class Vroom {
 
     private void update() {
         cameraTransformationManager.update();
-        // Update camera position
-//        camera.movePosition(cameraInc.x * CAMERA_POS_STEP,
-//                cameraInc.y * CAMERA_POS_STEP,
-//                cameraInc.z * CAMERA_POS_STEP);
     }
 
     private void render() {
@@ -141,6 +149,7 @@ public final class Vroom {
     private void cleanup() {
         renderer.cleanup();
         keyboardInputManager.cleanup();
+        objManager.cleanup();
     }
 
     private void sync(long loopStartTime) {

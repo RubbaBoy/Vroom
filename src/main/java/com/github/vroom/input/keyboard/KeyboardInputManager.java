@@ -41,7 +41,6 @@ public final class KeyboardInputManager {
 
     public void init(Window window) {
         glfwSetKeyCallback(window.getHandle(), keyCallback = GLFWKeyCallback.create((windowId, key, scancode, action, mods) -> {
-            LOGGER.info("Key: {} Action: {} Mods: {}", key, action, mods);
             var listeners = listenerMap.get(new KeyCombo(key, mods));
 
             if (listeners == null) {

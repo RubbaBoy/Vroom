@@ -35,17 +35,31 @@ public final class Mesh {
 
     private static final Vector3f DEFAULT_COLOUR = new Vector3f(1.0f, 1.0f, 1.0f);
 
-    private final int vaoId;
+    private int vaoId;
 
-    private final int vertexCount;
+    private int vertexCount;
 
-    private final List<Integer> vboIdList;
+    private List<Integer> vboIdList;
 
     private Vector3f color;
 
     private Texture texture;
 
+    // Used by copnstructor
+
+    private final float[] positions;
+    private final float[] textCoords;
+    private final float[] normals;
+    private final int[] indices;
+
     public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
+        this.positions = positions;
+        this.textCoords = textCoords;
+        this.normals = normals;
+        this.indices = indices;
+    }
+
+    public void createMesh() {
         FloatBuffer posBuffer = null;
         FloatBuffer textCoordsBuffer = null;
         IntBuffer indicesBuffer = null;
