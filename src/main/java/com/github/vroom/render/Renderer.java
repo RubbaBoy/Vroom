@@ -1,6 +1,7 @@
 package com.github.vroom.render;
 
 import com.github.vroom.render.camera.Camera;
+import com.github.vroom.render.light.DirectionalLight;
 import com.github.vroom.render.light.LightManager;
 import com.github.vroom.render.light.PointLight;
 import com.github.vroom.render.light.SpotLight;
@@ -59,6 +60,7 @@ public final class Renderer {
         shaderProgram.createUniform("ambientLight");
         shaderProgram.createPointLightListUniform("pointLights", MAX_POINT_LIGHTS);
         shaderProgram.createSpotLightListUniform("spotLights", MAX_SPOT_LIGHTS);
+        shaderProgram.createDirectionalLightUniform("directionalLight");
     }
 
     public void clear() {

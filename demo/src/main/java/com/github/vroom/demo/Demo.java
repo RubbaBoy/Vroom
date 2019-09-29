@@ -30,7 +30,7 @@ public class Demo {
         var objManager = new ObjManager<MeshFile>();
         objManager.queueObj(MeshFile.CUBE).waitForObjects();
 
-        var lightColor = new Vector3f(127, 1, 1);
+        var lightColor = new Vector3f(1, 1, 1);
         var lightPosition = new Vector3f(2, 2, 5);
         float lightIntensity = 2f;
         var pointLight = new PointLight(lightColor, lightPosition, lightIntensity);
@@ -38,7 +38,7 @@ public class Demo {
         pointLight.setAttenuation(att);
 
         var lightManager = new LightManager();
-        lightManager.setAmbientLight(new Vector3f(0.1f, 0.1f, 0.1f));
+        lightManager.setAmbientLight(new Vector3f(0.3f, 0.3f, 0.3f));
 
         for (int i = 0; i < 53 / 5; i++) {
             var clone = new PointLight(pointLight);

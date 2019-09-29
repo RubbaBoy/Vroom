@@ -20,6 +20,8 @@ public class LightManager {
 
     private final List<SpotLight> spotLights;
 
+    private DirectionalLight directionalLight;
+
     private Vector3f ambientLight = new Vector3f(0, 0, 0);
 
     private float specularPower = 10F;
@@ -37,6 +39,14 @@ public class LightManager {
     public void addLight(SpotLight spotLight) {
         if (pointLights.size() >= MAX_SPOT_LIGHTS) throw new IndexOutOfBoundsException("You cannot have more than " + MAX_SPOT_LIGHTS + " spot lights!");
         spotLights.add(spotLight);
+    }
+
+    public DirectionalLight getDirectionalLight() {
+        return directionalLight;
+    }
+
+    public void setDirectionalLight(DirectionalLight directionalLight) {
+        this.directionalLight = directionalLight;
     }
 
     public void setAmbientLight(Vector3f vector3f) {
@@ -85,5 +95,12 @@ public class LightManager {
 
             shaderProgram.setUniform("spotLights", currSpotLight, i);
         }
+
+        if (directionalLight == null) return;
+        DirectionalLight currDirLight = new DirectionalLight(directionalLight);
+        Vector4f dir = new Vector4f(currDirLight.getDirection(), 0);
+        dir.mul(viewMatrix);
+        currDirLight.setDirection(new Vector3f(dir.x, dir.y, dir.z));
+        shaderProgram.setUniform("directionalLight", currDirLight);
     }
 }

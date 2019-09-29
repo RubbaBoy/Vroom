@@ -35,6 +35,13 @@ struct SpotLight
     float cutoff;
 };
 
+struct DirectionalLight
+{
+    vec3 color;
+    vec3 direction;
+    float intensity;
+};
+
 struct Material
 {
     vec4 ambient;
@@ -52,6 +59,7 @@ uniform PointLight pointLight;
 uniform SpotLight spotLight;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
+uniform DirectionalLight directionalLight;
 
 vec4 ambientC;
 vec4 diffuseC;
@@ -71,6 +79,26 @@ void setupColors(Material material, vec2 textCoord)
         diffuseC = material.diffuse;
         speculrC = material.specular;
     }
+}
+
+vec4 calcLightColor(vec3 light_color, float light_intensity, vec3 position, vec3 to_light_dir, vec3 normal)
+{
+    vec4 diffuseColor = vec4(0, 0, 0, 0);
+    vec4 specColor = vec4(0, 0, 0, 0);
+
+    // Diffuse Light
+    float diffuseFactor = max(dot(normal, to_light_dir), 0.0);
+    diffuseColor = diffuseC * vec4(light_color, 1.0) * light_intensity * diffuseFactor;
+
+    // Specular Light
+    vec3 camera_direction = normalize(-position);
+    vec3 from_light_dir = -to_light_dir;
+    vec3 reflected_light = normalize(reflect(from_light_dir , normal));
+    float specularFactor = max( dot(camera_direction, reflected_light), 1);
+    specularFactor = pow(specularFactor, specularPower);
+    specColor = speculrC * light_intensity  * specularFactor * material.reflectance * vec4(light_color, 1.0);
+
+    return (diffuseColor + specColor);
 }
 
 vec4 calcPointLight(PointLight light, vec3 position, vec3 normal)
@@ -116,11 +144,16 @@ vec4 calcSpotLight(SpotLight light, vec3 position, vec3 normal)
     return color;
 }
 
+vec4 calcDirectionalLight(DirectionalLight light, vec3 position, vec3 normal)
+{
+    return calcLightColor(light.color, light.intensity, position, normalize(light.direction), normal);
+}
+
 void main()
 {
     setupColors(material, outTexCoord);
 
-    vec4 diffuseSpecularComp = vec4(0, 0, 0, 0);
+    vec4 diffuseSpecularComp = calcDirectionalLight(directionalLight, mvVertexPos, mvVertexNormal);
 
     for (int i=0; i<MAX_POINT_LIGHTS; i++)
     {

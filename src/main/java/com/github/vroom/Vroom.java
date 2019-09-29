@@ -8,14 +8,11 @@ import com.github.vroom.render.camera.Camera;
 import com.github.vroom.render.camera.CameraTransformationManager;
 import com.github.vroom.render.camera.modifiers.CameraDefaultMovementModifier;
 import com.github.vroom.render.camera.modifiers.CameraDefaultRotationModifier;
+import com.github.vroom.render.light.DirectionalLight;
 import com.github.vroom.render.light.LightManager;
-import com.github.vroom.render.light.Material;
-import com.github.vroom.render.light.PointLight;
-import com.github.vroom.render.light.SpotLight;
 import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +47,8 @@ public final class Vroom {
     private final LightManager lightManager;
 
     private final List<RenderObject> renderObjects;
+    private float lightAngle;
+    private DirectionalLight directionalLight;
 
     public Vroom(Window window, ObjManager<?> objManager, LightManager lightManager) {
         this.window = window;
@@ -61,6 +60,10 @@ public final class Vroom {
         this.mouseInputMethod = new MouseInputMethod();
         this.keyboardInputManager = new KeyboardInputManager(this);
         this.renderObjects = new ArrayList<>();
+
+        var lightPosition = new Vector3f(0, 0, 0);
+        directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), lightPosition, 1f);
+        lightManager.setDirectionalLight(directionalLight);
     }
 
     private void init() {
@@ -123,6 +126,28 @@ public final class Vroom {
 
     private void update() {
         cameraTransformationManager.update();
+
+        // Update directional light direction, intensity and colour
+        lightAngle += 0.005f;
+        if (lightAngle > 90) {
+            directionalLight.setIntensity(0);
+            if (lightAngle >= 360) {
+                lightAngle = -90;
+            }
+        } else if (lightAngle <= -90 || lightAngle >= 90) {
+            float factor = Math.abs(lightAngle) - 90;
+            directionalLight.setIntensity(factor);
+            directionalLight.getColor().y = Math.max(factor, 0.9f);
+            directionalLight.getColor().z = Math.max(factor, 0.5f);
+        } else {
+            directionalLight.setIntensity(1);
+            directionalLight.getColor().x = 1;
+            directionalLight.getColor().y = 1;
+            directionalLight.getColor().z = 1;
+        }
+        double angRad = Math.toRadians(lightAngle);
+        directionalLight.getDirection().x = (float) Math.sin(angRad);
+        directionalLight.getDirection().y = (float) Math.cos(angRad);
     }
 
     private void render() {

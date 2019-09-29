@@ -168,7 +168,7 @@ public final class ShaderProgram {
         setUniform(uniformName + ".reflectance", material.getReflectance());
     }
 
-    public void createDirectionalLightUniform(String uniformName) throws Exception {
+    public void createDirectionalLightUniform(String uniformName) {
         createUniform(uniformName + ".color");
         createUniform(uniformName + ".direction");
         createUniform(uniformName + ".intensity");
