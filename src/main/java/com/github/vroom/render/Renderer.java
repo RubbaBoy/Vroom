@@ -1,6 +1,7 @@
 package com.github.vroom.render;
 
 import com.github.vroom.render.camera.Camera;
+import com.github.vroom.render.mesh.Mesh;
 import com.github.vroom.render.object.RenderObject;
 import com.github.vroom.render.shader.ShaderProgram;
 import com.github.vroom.render.transform.Transformation;

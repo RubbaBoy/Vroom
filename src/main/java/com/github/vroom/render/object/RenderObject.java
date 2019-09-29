@@ -1,6 +1,6 @@
 package com.github.vroom.render.object;
 
-import com.github.vroom.render.Mesh;
+import com.github.vroom.render.mesh.Mesh;
 import org.joml.Vector3f;
 
 public final class RenderObject {

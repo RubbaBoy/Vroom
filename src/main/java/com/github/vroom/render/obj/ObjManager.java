@@ -1,69 +1,56 @@
 package com.github.vroom.render.obj;
 
-import com.github.vroom.render.Mesh;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.github.vroom.render.Texture;
+import com.github.vroom.render.mesh.FiledMesh;
+import com.github.vroom.render.mesh.Mesh;
+import com.github.vroom.render.mesh.TexturedMesh;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ForkJoinPool;
 
-public class ObjManager {
+public class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ObjManager.class);
+    private final List<Callable<Mesh>> processingCallables;
 
-    private final Map<String, Mesh> objFiles;
-    private final ExecutorService executorService;
-    private final List<CompletableFuture<Optional<Mesh>>> processingFutures;
+    private final ConcurrentMap<E, Mesh> meshMap;
 
     public ObjManager() {
-        this.objFiles = Collections.synchronizedMap(new HashMap<>());
-        this.executorService = Executors.newCachedThreadPool();
-        this.processingFutures = new ArrayList<>();
+        this.meshMap = new ConcurrentHashMap<>();
+        this.processingCallables = new ArrayList<>();
     }
 
-    public ObjManager queueObj(String fileName) {
-        processingFutures.add(CompletableFuture.supplyAsync(() -> {
-            try {
-                var mesh = OBJLoader.loadMesh(fileName);
-                objFiles.put(fileName, mesh);
-                return Optional.of(mesh);
-            } catch (IOException e) {
-                LOGGER.error("Error loading object file!", e);
-                return Optional.empty();
-            }
-        }, executorService));
+    public ObjManager queueObj(E e) {
+        processingCallables.add(() -> {
+            var mesh = ObjLoader.loadMesh(e.getRelativePath());
+            meshMap.put(e, mesh);
+            return mesh;
+        });
+
         return this;
     }
 
-    public Optional<Mesh> getObj(String fileName) {
-        return Optional.ofNullable(objFiles.get(fileName));
-    }
-
-    public Mesh getOrThrowObj(String fileName) {
-        return Optional.ofNullable(objFiles.get(fileName)).orElseThrow(() -> new RuntimeException("Model \"" + fileName + "\" not found or loaded!"));
+    public Mesh get(E e) {
+        return meshMap.get(e);
     }
 
     public void waitForObjects() {
-        processingFutures.stream()
-                .map(CompletableFuture::join)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .forEach(Mesh::createMesh);
-        processingFutures.clear();
+        ForkJoinPool.commonPool().invokeAll(processingCallables);
+        processingCallables.clear();
+    }
+
+    public void createMeshes() {
+        meshMap.forEach((e, mesh) -> {
+            mesh.createMesh();
+            mesh.setTexture(new Texture(e.getTexturePath()));
+        });
     }
 
     public void cleanup() {
-        executorService.shutdownNow();
+        meshMap.clear();
     }
 
 }

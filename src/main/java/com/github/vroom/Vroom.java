@@ -2,9 +2,7 @@ package com.github.vroom;
 
 import com.github.vroom.input.keyboard.KeyboardInputManager;
 import com.github.vroom.input.mouse.MouseInputMethod;
-import com.github.vroom.render.Mesh;
 import com.github.vroom.render.Renderer;
-import com.github.vroom.render.Texture;
 import com.github.vroom.render.Window;
 import com.github.vroom.render.camera.Camera;
 import com.github.vroom.render.camera.CameraTransformationManager;
@@ -33,22 +31,22 @@ public final class Vroom {
 
     private final Camera camera;
 
-    private final ObjManager objManager;
-
-    private final CameraTransformationManager cameraTransformationManager;
-
     private final Renderer renderer;
+
+    private final ObjManager objManager;
 
     private final MouseInputMethod mouseInputMethod;
 
     private final KeyboardInputManager keyboardInputManager;
 
+    private final CameraTransformationManager cameraTransformationManager;
+
     private final List<RenderObject> renderObjects;
 
-    public Vroom(Window window) {
+    public Vroom(Window window, ObjManager objManager) {
         this.window = window;
         this.camera = new Camera();
-        this.objManager = new ObjManager();
+        this.objManager = objManager;
         this.cameraTransformationManager = new CameraTransformationManager(this, camera);
         this.renderer = new Renderer();
         this.mouseInputMethod = new MouseInputMethod();
@@ -64,29 +62,11 @@ public final class Vroom {
 
         try {
             renderer.init();
-
-            var start = System.currentTimeMillis();
-            objManager
-                    .queueObj("/models/cube.obj")
-                    .waitForObjects();
-
-            Mesh mesh = objManager.getOrThrowObj("/models/cube.obj");
-
-            mesh.setTexture(new Texture("textures/grassblock.png"));
-            for (int x = 0; x < 5; x++) {
-                for (int y = 0; y < 53; y++) {
-                    var renderObject = new RenderObject(mesh);
-                    renderObject.setScale(0.5F);
-                    renderObject.setPosition(x, x % 2 == 0 ? -1 : 0, y);
-                    renderObject.setRotation(0, 0, 0);
-                    addRenderObject(renderObject);
-                }
-            }
-
-            LOGGER.info("Completed in {}ms", System.currentTimeMillis() - start);
         } catch (IOException e) {
             LOGGER.error("Exception while creating Renderer!", e);
         }
+
+        objManager.createMeshes();
 
         keyboardInputManager.init(window);
         mouseInputMethod.init(window);
