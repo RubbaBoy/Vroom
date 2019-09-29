@@ -16,7 +16,7 @@ public class Demo {
     private static final Logger LOGGER = LoggerFactory.getLogger(Demo.class);
 
     public static void main(String[] args) {
-        var vroom = new Vroom(new Window("Demo", 800, 600, false, true));
+        var vroom = new Vroom(new Window("Demo", 800, 600, false, false));
 
         vroom.getKeyboardInputManager().addListener(new KeyCombo(GLFW_KEY_A), new KeyListener() {
             @Override

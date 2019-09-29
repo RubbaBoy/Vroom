@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.glfw.GLFW.glfwSetCursorEnterCallback;
@@ -26,6 +28,10 @@ public final class MouseInputMethod {
     private final Map<Integer, List<MouseListener>> listenerMap;
 
     private boolean inWindow;
+
+    private boolean leftPressed;
+
+    private boolean rightPressed;
 
     public MouseInputMethod() {
         this.previousPos = new Vector2d(-1, -1);
@@ -49,6 +55,12 @@ public final class MouseInputMethod {
         });
 
         glfwSetMouseButtonCallback(window.getHandle(), (windowHandle, button, action, mode) -> {
+            if (button == GLFW_MOUSE_BUTTON_LEFT) {
+                leftPressed = action == GLFW_PRESS;
+            } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+                rightPressed = action == GLFW_PRESS;
+            }
+
             var mouseListener = listenerMap.get(button);
 
             if (mouseListener == null) {
@@ -88,5 +100,17 @@ public final class MouseInputMethod {
 
         previousPos.x = currentPos.x;
         previousPos.y = currentPos.y;
+    }
+
+    public Vector2f getDisplVec() {
+        return displVec;
+    }
+
+    public boolean isLeftPressed() {
+        return leftPressed;
+    }
+
+    public boolean isRightPressed() {
+        return rightPressed;
     }
 }

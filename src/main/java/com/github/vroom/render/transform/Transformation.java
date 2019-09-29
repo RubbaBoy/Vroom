@@ -28,14 +28,14 @@ public final class Transformation {
         return projectionMatrix;
     }
 
-    public Matrix4f getModelViewMatrix(RenderObject RenderObjects, Matrix4f viewMatrix) {
-        Vector3f rotation = RenderObjects.getRotation();
+    public Matrix4f getModelViewMatrix(RenderObject renderObject, Matrix4f viewMatrix) {
+        Vector3f rotation = renderObject.getRotation();
 
-        modelViewMatrix.set(viewMatrix).translate(RenderObjects.getPosition())
+        modelViewMatrix.set(viewMatrix).translate(renderObject.getPosition())
                 .rotateX((float) Math.toRadians(-rotation.x))
                 .rotateY((float) Math.toRadians(-rotation.y))
                 .rotateZ((float) Math.toRadians(-rotation.z))
-                .scale(RenderObjects.getScale());
+                .scale(renderObject.getScale());
 
         return modelViewMatrix;
     }
@@ -44,13 +44,12 @@ public final class Transformation {
         Vector3f cameraPos = camera.getPosition();
         Vector3f rotation = camera.getRotation();
 
+        viewMatrix.identity();
         // First do the rotation so camera rotates over its position
-        viewMatrix.rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0))
-                .rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0));
-
+        viewMatrix.rotate((float)Math.toRadians(rotation.x), new Vector3f(1, 0, 0))
+                .rotate((float)Math.toRadians(rotation.y), new Vector3f(0, 1, 0));
         // Then do the translation
         viewMatrix.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-
         return viewMatrix;
     }
 

@@ -1,7 +1,10 @@
 package com.github.vroom.input.keyboard;
 
+import com.github.vroom.Vroom;
 import com.github.vroom.render.Window;
 import org.lwjgl.glfw.GLFWKeyCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,15 +14,20 @@ import java.util.Map;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.glfw.GLFW.GLFW_REPEAT;
+import static org.lwjgl.glfw.GLFW.glfwGetKey;
 import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
 
 public final class KeyboardInputManager {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeyboardInputManager.class);
+
     private final Map<KeyCombo, List<KeyListener>> listenerMap;
 
     private GLFWKeyCallback keyCallback;
+    private Vroom vroom;
 
-    public KeyboardInputManager() {
+    public KeyboardInputManager(Vroom vroom) {
+        this.vroom = vroom;
         this.listenerMap = new HashMap<>();
     }
 
@@ -33,6 +41,7 @@ public final class KeyboardInputManager {
 
     public void init(Window window) {
         glfwSetKeyCallback(window.getHandle(), keyCallback = GLFWKeyCallback.create((windowId, key, scancode, action, mods) -> {
+            LOGGER.info("Key: {} Action: {} Mods: {}", key, action, mods);
             var listeners = listenerMap.get(new KeyCombo(key, mods));
 
             if (listeners == null) {
@@ -55,5 +64,9 @@ public final class KeyboardInputManager {
 
     public void cleanup() {
         keyCallback.free();
+    }
+
+    public boolean isKeyPressed(int key) {
+        return glfwGetKey(vroom.getWindow().getHandle(), key) == GLFW_PRESS;
     }
 }
