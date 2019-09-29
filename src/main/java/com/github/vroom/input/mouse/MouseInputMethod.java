@@ -1,6 +1,6 @@
 package com.github.vroom.input.mouse;
 
-import com.github.vroom.Window;
+import com.github.vroom.render.Window;
 import org.joml.Vector2d;
 import org.joml.Vector2f;
 
@@ -9,15 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_1;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_2;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.glfw.GLFW.glfwSetCursorEnterCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetCursorPosCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetMouseButtonCallback;
 
-public class MouseInputMethod {
+public final class MouseInputMethod {
 
     private final Vector2d previousPos;
 

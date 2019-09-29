@@ -1,7 +1,6 @@
 package com.github.vroom.input.keyboard;
 
-import com.github.vroom.Window;
-import org.lwjgl.glfw.GLFW;
+import com.github.vroom.render.Window;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.glfw.GLFW.GLFW_REPEAT;
 import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
 
-public class KeyboardInputManager {
+public final class KeyboardInputManager {
 
     private final Map<KeyCombo, List<KeyListener>> listenerMap;
 
@@ -22,6 +21,10 @@ public class KeyboardInputManager {
 
     public KeyboardInputManager() {
         this.listenerMap = new HashMap<>();
+    }
+
+    public void addListener(int key, int modifiers, KeyListener keyListener) {
+        addListener(new KeyCombo(key, modifiers), keyListener);
     }
 
     public void addListener(KeyCombo keyCombo, KeyListener keyListener) {
