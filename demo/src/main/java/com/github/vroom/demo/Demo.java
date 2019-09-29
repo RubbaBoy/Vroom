@@ -28,9 +28,9 @@ public class Demo {
 
         var lightColor = new Vector3f(1, 1, 1);
         var lightPosition = new Vector3f(2, 2, 5);
-        float lightIntensity = 3f;
+        float lightIntensity = 2f;
         var pointLight = new PointLight(lightColor, lightPosition, lightIntensity);
-        var att = new PointLight.Attenuation(0.5f, 0.0f, 0.5f);
+        var att = new PointLight.Attenuation(0.7f, 0.7f, 0.7f);
         pointLight.setAttenuation(att);
 
         var vroom = new Vroom(new Window("Demo", 800, 600, false, false), objManager, ambientLight, pointLight);

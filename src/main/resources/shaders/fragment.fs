@@ -65,7 +65,7 @@ vec4 calcPointLight(PointLight light, vec3 position, vec3 normal)
     // Diffuse Light
     vec3 light_direction = light.position - position;
     vec3 to_light_source  = normalize(light_direction);
-    float diffuseFactor = max(dot(normal, to_light_source ), 0.0);
+    float diffuseFactor = max(dot(normal, to_light_source ), 1.0);
     diffuseColor = diffuseC * vec4(light.color, 1.0) * light.intensity * diffuseFactor;
 
     // Specular Light
