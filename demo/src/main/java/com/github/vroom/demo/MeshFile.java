@@ -6,7 +6,7 @@ import com.github.vroom.render.mesh.TexturedMesh;
 
 public enum MeshFile implements FiledMesh, TexturedMesh {
 
-    CUBE("/models/cube.obj", "textures/grassblock.png", new Material(1.0F));
+    CUBE("/models/cube.obj", "textures/grassblock.png", new Material(0.5F));
 
     private final String relativePath;
 

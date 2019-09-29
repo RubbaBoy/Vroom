@@ -8,8 +8,10 @@ import com.github.vroom.render.camera.Camera;
 import com.github.vroom.render.camera.CameraTransformationManager;
 import com.github.vroom.render.camera.modifiers.CameraDefaultMovementModifier;
 import com.github.vroom.render.camera.modifiers.CameraDefaultRotationModifier;
+import com.github.vroom.render.light.LightManager;
 import com.github.vroom.render.light.Material;
 import com.github.vroom.render.light.PointLight;
+import com.github.vroom.render.light.SpotLight;
 import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
 import org.joml.Vector3f;
@@ -45,18 +47,15 @@ public final class Vroom {
 
     private final CameraTransformationManager cameraTransformationManager;
 
+    private final LightManager lightManager;
+
     private final List<RenderObject> renderObjects;
 
-    private Vector3f ambientLight;
-
-    private PointLight pointLight;
-
-    public Vroom(Window window, ObjManager<?> objManager, Vector3f ambientLight, PointLight pointLight) {
+    public Vroom(Window window, ObjManager<?> objManager, LightManager lightManager) {
         this.window = window;
-        this.ambientLight = ambientLight;
-        this.pointLight = pointLight;
-        this.camera = new Camera();
         this.objManager = objManager;
+        this.lightManager = lightManager;
+        this.camera = new Camera();
         this.cameraTransformationManager = new CameraTransformationManager(this, camera);
         this.renderer = new Renderer();
         this.mouseInputMethod = new MouseInputMethod();
@@ -132,7 +131,7 @@ public final class Vroom {
             window.setResized(false);
         }
 
-        renderer.render(window, camera, renderObjects, ambientLight, pointLight);
+        renderer.render(window, camera, renderObjects, lightManager);
         window.render();
     }
 

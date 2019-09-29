@@ -3,6 +3,7 @@ package com.github.vroom.render.shader;
 import com.github.vroom.render.light.DirectionalLight;
 import com.github.vroom.render.light.Material;
 import com.github.vroom.render.light.PointLight;
+import com.github.vroom.render.light.SpotLight;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -129,6 +130,12 @@ public final class ShaderProgram {
         createUniform(uniformName + ".att.exponent");
     }
 
+    public void createSpotLightUniform(String uniformName) {
+        createPointLightUniform(uniformName + ".pl");
+        createUniform(uniformName + ".conedir");
+        createUniform(uniformName + ".cutoff");
+    }
+
     public void createMaterialUniform(String uniformName) {
         createUniform(uniformName + ".ambient");
         createUniform(uniformName + ".diffuse");
@@ -145,6 +152,12 @@ public final class ShaderProgram {
         setUniform(uniformName + ".att.constant", att.getConstant());
         setUniform(uniformName + ".att.linear", att.getLinear());
         setUniform(uniformName + ".att.exponent", att.getExponent());
+    }
+
+    public void setUniform(String uniformName, SpotLight spotLight) {
+        setUniform(uniformName + ".pl", spotLight.getPointLight());
+        setUniform(uniformName + ".conedir", spotLight.getConeDirection());
+        setUniform(uniformName + ".cutoff", spotLight.getCutOff());
     }
 
     public void setUniform(String uniformName, Material material) {
@@ -165,6 +178,40 @@ public final class ShaderProgram {
         setUniform(uniformName + ".color", dirLight.getColor() );
         setUniform(uniformName + ".direction", dirLight.getDirection());
         setUniform(uniformName + ".intensity", dirLight.getIntensity());
+    }
+
+    public void createPointLightListUniform(String uniformName, int size) {
+        for (int i = 0; i < size; i++) {
+            createPointLightUniform(uniformName + "[" + i + "]");
+        }
+    }
+
+    public void createSpotLightListUniform(String uniformName, int size) {
+        for (int i = 0; i < size; i++) {
+            createSpotLightUniform(uniformName + "[" + i + "]");
+        }
+    }
+
+    public void setUniform(String uniformName, PointLight[] pointLights) {
+        int numLights = pointLights != null ? pointLights.length : 0;
+        for (int i = 0; i < numLights; i++) {
+            setUniform(uniformName, pointLights[i], i);
+        }
+    }
+
+    public void setUniform(String uniformName, PointLight pointLight, int pos) {
+        setUniform(uniformName + "[" + pos + "]", pointLight);
+    }
+
+    public void setUniform(String uniformName, SpotLight[] spotLights) {
+        int numLights = spotLights != null ? spotLights.length : 0;
+        for (int i = 0; i < numLights; i++) {
+            setUniform(uniformName, spotLights[i], i);
+        }
+    }
+
+    public void setUniform(String uniformName, SpotLight spotLight, int pos) {
+        setUniform(uniformName + "[" + pos + "]", spotLight);
     }
 
     public void link() {

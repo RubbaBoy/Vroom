@@ -6,6 +6,12 @@ in vec3 mvVertexPos;
 
 out vec4 fragColor;
 
+// Match up with "MAX_POINT_LIGHTS" in Renderer.java
+const int MAX_POINT_LIGHTS = 50;
+
+// Match up with "MAX_SPOT_LIGHTS" in Renderer.java
+const int MAX_SPOT_LIGHTS = 50;
+
 struct Attenuation
 {
     float constant;
@@ -22,6 +28,13 @@ struct PointLight
     Attenuation att;
 };
 
+struct SpotLight
+{
+    PointLight pl;
+    vec3 conedir;
+    float cutoff;
+};
+
 struct Material
 {
     vec4 ambient;
@@ -36,6 +49,9 @@ uniform vec3 ambientLight;
 uniform float specularPower;
 uniform Material material;
 uniform PointLight pointLight;
+uniform SpotLight spotLight;
+uniform PointLight pointLights[MAX_POINT_LIGHTS];
+uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 vec4 ambientC;
 vec4 diffuseC;
@@ -83,11 +99,44 @@ vec4 calcPointLight(PointLight light, vec3 position, vec3 normal)
     return (diffuseColor + specColor) / attenuationInv;
 }
 
+vec4 calcSpotLight(SpotLight light, vec3 position, vec3 normal)
+{
+    vec3 light_direction = light.pl.position - position;
+    vec3 to_light_dir  = normalize(light_direction);
+    vec3 from_light_dir  = -to_light_dir;
+    float spot_alfa = dot(from_light_dir, normalize(light.conedir));
+
+    vec4 color = vec4(0, 0, 0, 0);
+
+    if ( spot_alfa > light.cutoff )
+    {
+        color = calcPointLight(light.pl, position, normal);
+        color *= (1.0 - (1.0 - spot_alfa)/(1.0 - light.cutoff));
+    }
+    return color;
+}
+
 void main()
 {
     setupColors(material, outTexCoord);
 
-    vec4 diffuseSpecularComp = calcPointLight(pointLight, mvVertexPos, mvVertexNormal);
+    vec4 diffuseSpecularComp = vec4(0, 0, 0, 0);
+
+    for (int i=0; i<MAX_POINT_LIGHTS; i++)
+    {
+        if ( pointLights[i].intensity > 0 )
+        {
+            diffuseSpecularComp += calcPointLight(pointLights[i], mvVertexPos, mvVertexNormal);
+        }
+    }
+
+    for (int i=0; i<MAX_SPOT_LIGHTS; i++)
+    {
+        if ( spotLights[i].pl.intensity > 0 )
+        {
+            diffuseSpecularComp += calcSpotLight(spotLights[i], mvVertexPos, mvVertexNormal);
+        }
+    }
 
     fragColor = ambientC * vec4(ambientLight, 1) + diffuseSpecularComp;
 }
