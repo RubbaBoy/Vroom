@@ -27,9 +27,9 @@ public final class Vroom {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Vroom.class);
 
-    private static final int TARGET_FPS = 60;
+    public static final int TARGET_FPS = 60;
 
-    private static final int TARGET_UPS = 30;
+    public static final int TARGET_UPS = 30;
 
     private float lightAngle;
 

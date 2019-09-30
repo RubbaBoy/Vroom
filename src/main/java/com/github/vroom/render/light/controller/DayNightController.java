@@ -4,10 +4,18 @@ import com.github.vroom.Vroom;
 import com.github.vroom.render.light.DirectionalLight;
 import com.github.vroom.render.light.LightManager;
 import org.joml.Vector3f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DayNightController implements LightController {
 
-    private float lightAngle;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DayNightController.class);
+
+    private final float durationOfDay = 5_000; // In mills
+
+    private final float maxTimeOfDay = 60_000;
+
+    private float currentTimeOfDay = 30_000; // In updates
 
     private DirectionalLight directionalLight;
 
@@ -18,9 +26,24 @@ public class DayNightController implements LightController {
         lightManager.setDirectionalLight(directionalLight);
     }
 
+    private int multiply = 1;
+
     @Override
     public void update(Vroom vroom, LightManager lightManager) {
-        lightAngle += 0.0002f;
+        var iterationsPerSecond = 1f / Vroom.TARGET_UPS;
+        var updatesPerS = maxTimeOfDay / durationOfDay; // Amount of updates required to cycle day
+        currentTimeOfDay += (updatesPerS * iterationsPerSecond) * multiply;
+
+        if (currentTimeOfDay <= 0 || currentTimeOfDay >= maxTimeOfDay) {
+//            multiply *= -1;
+            currentTimeOfDay = 0;
+        }
+
+        updateLight();
+    }
+
+    private void updateLight() {
+        var lightAngle = (currentTimeOfDay / maxTimeOfDay) * 360f;
 
         float factor;
 
