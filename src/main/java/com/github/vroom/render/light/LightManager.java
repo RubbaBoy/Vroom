@@ -32,12 +32,18 @@ public class LightManager {
     }
 
     public void addLight(PointLight pointLight) {
-        if (pointLights.size() >= MAX_POINT_LIGHTS) throw new IndexOutOfBoundsException("You cannot have more than " + MAX_POINT_LIGHTS + " point lights!");
+        if (pointLights.size() >= MAX_POINT_LIGHTS) {
+            throw new IndexOutOfBoundsException("You cannot have more than " + MAX_POINT_LIGHTS + " point lights!");
+        }
+
         pointLights.add(pointLight);
     }
 
     public void addLight(SpotLight spotLight) {
-        if (pointLights.size() >= MAX_SPOT_LIGHTS) throw new IndexOutOfBoundsException("You cannot have more than " + MAX_SPOT_LIGHTS + " spot lights!");
+        if (pointLights.size() >= MAX_SPOT_LIGHTS) {
+            throw new IndexOutOfBoundsException("You cannot have more than " + MAX_SPOT_LIGHTS + " spot lights!");
+        }
+
         spotLights.add(spotLight);
     }
 
@@ -71,24 +77,29 @@ public class LightManager {
 
         for (int i = 0; i < pointLights.size(); i++) {
             var currPointLight = new PointLight(pointLights.get(i));
+
             Vector3f lightPos = currPointLight.getPosition();
             Vector4f aux = new Vector4f(lightPos, 1);
             aux.mul(viewMatrix);
+
             lightPos.x = aux.x;
             lightPos.y = aux.y;
             lightPos.z = aux.z;
+
             shaderProgram.setUniform("pointLights", currPointLight, i);
         }
 
         for (int i = 0; i < spotLights.size(); i++) {
             var currSpotLight = new SpotLight(spotLights.get(i));
+
             Vector4f dir = new Vector4f(currSpotLight.getConeDirection(), 0);
             dir.mul(viewMatrix);
             currSpotLight.setConeDirection(new Vector3f(dir.x, dir.y, dir.z));
-            Vector3f lightPos = currSpotLight.getPointLight().getPosition();
 
+            Vector3f lightPos = currSpotLight.getPointLight().getPosition();
             Vector4f aux = new Vector4f(lightPos, 1);
             aux.mul(viewMatrix);
+
             lightPos.x = aux.x;
             lightPos.y = aux.y;
             lightPos.z = aux.z;
@@ -96,7 +107,10 @@ public class LightManager {
             shaderProgram.setUniform("spotLights", currSpotLight, i);
         }
 
-        if (directionalLight == null) return;
+        if (directionalLight == null) {
+            return;
+        }
+
         DirectionalLight currDirLight = new DirectionalLight(directionalLight);
         Vector4f dir = new Vector4f(currDirLight.getDirection(), 0);
         dir.mul(viewMatrix);

@@ -36,22 +36,23 @@ public final class Mesh {
 
     private static final Vector3f DEFAULT_COLOR = new Vector3f(1.0f, 1.0f, 1.0f);
 
+    private final float[] positions;
+
+    private final float[] textCoords;
+
+    private final float[] normals;
+
+    private final int[] indices;
+
     private int vaoId;
 
     private int vertexCount;
-
-    private List<Integer> vboIdList;
 
     private Vector3f color;
 
     private Material material;
 
-    // Used by copnstructor
-
-    private final float[] positions;
-    private final float[] textCoords;
-    private final float[] normals;
-    private final int[] indices;
+    private List<Integer> vboIdList;
 
     public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
         this.positions = positions;
@@ -146,8 +147,8 @@ public final class Mesh {
             glDeleteBuffers(vboId);
         }
 
-        // Delete the texture
         var texture = material.getTexture();
+
         if (texture != null) {
             texture.cleanup();
         }
@@ -158,9 +159,11 @@ public final class Mesh {
 
     public void render() {
         var texture = material.getTexture();
+
         if (texture != null) {
             // Activate firs texture bank
             glActiveTexture(GL_TEXTURE0);
+
             // Bind the texture
             glBindTexture(GL_TEXTURE_2D, texture.getId());
         }

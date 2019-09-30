@@ -94,7 +94,7 @@ vec4 calcLightColor(vec3 light_color, float light_intensity, vec3 position, vec3
     vec3 camera_direction = normalize(-position);
     vec3 from_light_dir = -to_light_dir;
     vec3 reflected_light = normalize(reflect(from_light_dir , normal));
-    float specularFactor = max( dot(camera_direction, reflected_light), 1);
+    float specularFactor = max( dot(camera_direction, reflected_light), 0.0);
     specularFactor = pow(specularFactor, specularPower);
     specColor = speculrC * light_intensity  * specularFactor * material.reflectance * vec4(light_color, 1.0);
 
@@ -171,5 +171,5 @@ void main()
         }
     }
 
-    fragColor = ambientC * vec4(ambientLight, 1) + diffuseSpecularComp;
+    fragColor = ambientC * vec4(ambientLight, 0) + diffuseSpecularComp;
 }

@@ -30,6 +30,8 @@ public final class Vroom {
 
     private static final int TARGET_UPS = 30;
 
+    private float lightAngle;
+
     private final Window window;
 
     private final Camera camera;
@@ -47,7 +49,7 @@ public final class Vroom {
     private final LightManager lightManager;
 
     private final List<RenderObject> renderObjects;
-    private float lightAngle;
+
     private DirectionalLight directionalLight;
 
     public Vroom(Window window, ObjManager<?> objManager, LightManager lightManager) {
@@ -128,24 +130,24 @@ public final class Vroom {
         cameraTransformationManager.update();
 
         // Update directional light direction, intensity and colour
-        lightAngle += 0.005f;
-        if (lightAngle > 90) {
-            directionalLight.setIntensity(0);
-            if (lightAngle >= 360) {
-                lightAngle = -90;
-            }
-        } else if (lightAngle <= -90 || lightAngle >= 90) {
-            float factor = Math.abs(lightAngle) - 90;
-            directionalLight.setIntensity(factor);
-            directionalLight.getColor().y = Math.max(factor, 0.9f);
-            directionalLight.getColor().z = Math.max(factor, 0.5f);
+        lightAngle += 0.0002f;
+
+        float factor;
+
+        if (lightAngle >= -90 && lightAngle <= 90) {
+            factor = (float) Math.sin(Math.toRadians(lightAngle + 90));
         } else {
-            directionalLight.setIntensity(1);
-            directionalLight.getColor().x = 1;
-            directionalLight.getColor().y = 1;
-            directionalLight.getColor().z = 1;
+            factor = 0;
+
+            if (lightAngle >= 135) {
+                lightAngle = -135;
+            }
         }
+
+        directionalLight.setIntensity(factor);
+
         double angRad = Math.toRadians(lightAngle);
+
         directionalLight.getDirection().x = (float) Math.sin(angRad);
         directionalLight.getDirection().y = (float) Math.cos(angRad);
     }

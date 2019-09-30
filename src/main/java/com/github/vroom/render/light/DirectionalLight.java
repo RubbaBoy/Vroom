@@ -2,13 +2,13 @@ package com.github.vroom.render.light;
 
 import org.joml.Vector3f;
 
-public class DirectionalLight {
+public final class DirectionalLight {
+
+    private float intensity;
 
     private Vector3f color;
 
     private Vector3f direction;
-
-    private float intensity;
 
     public DirectionalLight(Vector3f color, Vector3f direction, float intensity) {
         this.color = color;
@@ -24,20 +24,20 @@ public class DirectionalLight {
         return color;
     }
 
-    public void setColor(Vector3f color) {
-        this.color = color;
-    }
-
     public Vector3f getDirection() {
         return direction;
     }
 
-    public void setDirection(Vector3f direction) {
-        this.direction = direction;
-    }
-
     public float getIntensity() {
         return intensity;
+    }
+
+    public void setColor(Vector3f color) {
+        this.color = color;
+    }
+
+    public void setDirection(Vector3f direction) {
+        this.direction = direction;
     }
 
     public void setIntensity(float intensity) {

@@ -1,17 +1,12 @@
 package com.github.vroom.render;
 
 import com.github.vroom.render.camera.Camera;
-import com.github.vroom.render.light.DirectionalLight;
 import com.github.vroom.render.light.LightManager;
-import com.github.vroom.render.light.PointLight;
-import com.github.vroom.render.light.SpotLight;
 import com.github.vroom.render.mesh.Mesh;
 import com.github.vroom.render.object.RenderObject;
 import com.github.vroom.render.shader.ShaderProgram;
 import com.github.vroom.render.transform.Transformation;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import java.io.IOException;
 import java.util.List;
