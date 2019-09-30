@@ -5,8 +5,10 @@ import com.github.vroom.input.keyboard.KeyCombo;
 import com.github.vroom.input.keyboard.KeyListener;
 import com.github.vroom.input.mouse.MouseListener;
 import com.github.vroom.render.Window;
+import com.github.vroom.render.light.GlobalLightHandler;
 import com.github.vroom.render.light.LightManager;
 import com.github.vroom.render.light.PointLight;
+import com.github.vroom.render.light.controller.DayNightController;
 import com.github.vroom.render.mesh.Mesh;
 import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
@@ -24,8 +26,9 @@ public class Demo {
     public static void main(String[] args) {
         var objManager = createObjManager();
         var lightManager = createLightManager();
+        var globalLightHandler = createLightHandler();
 
-        var vroom = new Vroom(new Window("Demo", 800, 600, false, false), objManager, lightManager);
+        var vroom = new Vroom(new Window("Demo", 800, 600, false, false), objManager, lightManager, globalLightHandler);
 
         renderCubes(objManager, vroom);
 
@@ -33,6 +36,12 @@ public class Demo {
         registerMouseListener(vroom);
 
         vroom.run();
+    }
+
+    private static GlobalLightHandler createLightHandler() {
+        var globalLightHandler = new GlobalLightHandler();
+        globalLightHandler.setLightController(new DayNightController());
+        return globalLightHandler;
     }
 
     private static LightManager createLightManager() {

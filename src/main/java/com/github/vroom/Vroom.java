@@ -9,6 +9,7 @@ import com.github.vroom.render.camera.CameraTransformationManager;
 import com.github.vroom.render.camera.modifiers.CameraDefaultMovementModifier;
 import com.github.vroom.render.camera.modifiers.CameraDefaultRotationModifier;
 import com.github.vroom.render.light.DirectionalLight;
+import com.github.vroom.render.light.GlobalLightHandler;
 import com.github.vroom.render.light.LightManager;
 import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
@@ -48,24 +49,21 @@ public final class Vroom {
 
     private final LightManager lightManager;
 
+    private final GlobalLightHandler globalLightHandler;
+
     private final List<RenderObject> renderObjects;
 
-    private DirectionalLight directionalLight;
-
-    public Vroom(Window window, ObjManager<?> objManager, LightManager lightManager) {
+    public Vroom(Window window, ObjManager<?> objManager, LightManager lightManager, GlobalLightHandler globalLightHandler) {
         this.window = window;
         this.objManager = objManager;
         this.lightManager = lightManager;
+        this.globalLightHandler = globalLightHandler.setVroom(this);
         this.camera = new Camera();
         this.cameraTransformationManager = new CameraTransformationManager(this, camera);
         this.renderer = new Renderer();
         this.mouseInputMethod = new MouseInputMethod();
         this.keyboardInputManager = new KeyboardInputManager(this);
         this.renderObjects = new ArrayList<>();
-
-        var lightPosition = new Vector3f(0, 0, 0);
-        directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), lightPosition, 1f);
-        lightManager.setDirectionalLight(directionalLight);
     }
 
     private void init() {
@@ -81,6 +79,7 @@ public final class Vroom {
         }
 
         objManager.createMeshes();
+        globalLightHandler.init();
 
         keyboardInputManager.init(window);
         mouseInputMethod.init(window);
@@ -128,28 +127,7 @@ public final class Vroom {
 
     private void update() {
         cameraTransformationManager.update();
-
-        // Update directional light direction, intensity and colour
-        lightAngle += 0.0002f;
-
-        float factor;
-
-        if (lightAngle >= -90 && lightAngle <= 90) {
-            factor = (float) Math.sin(Math.toRadians(lightAngle + 90));
-        } else {
-            factor = 0;
-
-            if (lightAngle >= 135) {
-                lightAngle = -135;
-            }
-        }
-
-        directionalLight.setIntensity(factor);
-
-        double angRad = Math.toRadians(lightAngle);
-
-        directionalLight.getDirection().x = (float) Math.sin(angRad);
-        directionalLight.getDirection().y = (float) Math.cos(angRad);
+        globalLightHandler.update();
     }
 
     private void render() {
@@ -199,5 +177,13 @@ public final class Vroom {
 
     public MouseInputMethod getMouseInputMethod() {
         return mouseInputMethod;
+    }
+
+    public LightManager getLightManager() {
+        return lightManager;
+    }
+
+    public GlobalLightHandler getGlobalLightHandler() {
+        return globalLightHandler;
     }
 }
