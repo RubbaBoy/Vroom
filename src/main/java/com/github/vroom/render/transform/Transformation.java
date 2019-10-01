@@ -22,6 +22,7 @@ public final class Transformation {
     public final Matrix4f getProjectionMatrix(float fov, float width, float height, float zNear, float zFar) {
         float aspectRatio = width / height;
 
+        projectionMatrix.identity();
         projectionMatrix.perspective(fov, aspectRatio, zNear, zFar);
 
         return projectionMatrix;
@@ -30,6 +31,7 @@ public final class Transformation {
     public Matrix4f getModelViewMatrix(RenderObject renderObject, Matrix4f viewMatrix) {
         Vector3f rotation = renderObject.getRotation();
 
+        modelViewMatrix.identity();
         modelViewMatrix.set(viewMatrix).translate(renderObject.getPosition())
                 .rotateX((float) Math.toRadians(-rotation.x))
                 .rotateY((float) Math.toRadians(-rotation.y))
@@ -44,6 +46,7 @@ public final class Transformation {
         Vector3f rotation = camera.getRotation();
 
         // First do the rotation so camera rotates over its position
+        viewMatrix.identity();
         viewMatrix.rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0))
                 .rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0));
 
