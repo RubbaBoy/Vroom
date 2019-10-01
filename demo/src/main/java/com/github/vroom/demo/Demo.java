@@ -32,10 +32,10 @@ public class Demo {
 
         var vroom = new Vroom(new Window("Demo", 800, 600, true, false), objManager, lightManager, globalLightHandler);
 
-//        renderCubes(objManager, vroom);
+        renderCubes(objManager, vroom);
 
 //        Mesh mesh = objManager.get(MeshFile.CUBE);
-//        var renderObject = new RenderObject(mesh);
+//        var renderObject = new RenderObject(mesh, true);
 //        renderObject.setScale(0.5F);
 //        renderObject.setPosition(0, 0, 0);
 //        renderObject.setRotation(0, 0, 0);

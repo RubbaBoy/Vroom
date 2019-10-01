@@ -45,7 +45,9 @@ public final class CameraDefaultMovementModifier implements CameraModifier {
             cameraInc.y = -1;
         }
 
-        camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP,
-                cameraInc.z * CAMERA_POS_STEP);
+        if (cameraInc.x != 0 || cameraInc.y != 0 || cameraInc.z != 0) {
+            camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP,
+                    cameraInc.z * CAMERA_POS_STEP);
+        }
     }
 }

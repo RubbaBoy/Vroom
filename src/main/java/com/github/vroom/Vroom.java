@@ -55,7 +55,7 @@ public final class Vroom {
         this.objManager = objManager;
         this.lightManager = lightManager;
         this.globalLightHandler = globalLightHandler.setVroom(this);
-        this.camera = new Camera();
+        this.camera = new Camera(this);
         this.cameraTransformationManager = new CameraTransformationManager(this, camera);
         this.renderer = new Renderer();
         this.mouseInputMethod = new MouseInputMethod();
@@ -69,13 +69,13 @@ public final class Vroom {
         cameraTransformationManager.addModifier(new CameraDefaultRotationModifier());
         cameraTransformationManager.addModifier(new CameraDefaultMovementModifier(this));
 
-        float terrainScale = 10f;
-        int terrainSize = 3;
-        float minY = -0.1f;
-        float maxY = 0.1f;
-        int textInc = 40;
-        var terrain = new Terrain(terrainSize, terrainScale, minY, maxY, "textures/heightmap.png", "textures/terrain.png", textInc);
-        renderObjects.addAll(Arrays.asList(terrain.getRenderObjects()));
+//        float terrainScale = 10f;
+//        int terrainSize = 3;
+//        float minY = -0.1f;
+//        float maxY = 0.1f;
+//        int textInc = 40;
+//        var terrain = new Terrain(terrainSize, terrainScale, minY, maxY, "textures/heightmap.png", "textures/terrain.png", textInc);
+//        renderObjects.addAll(Arrays.asList(terrain.getRenderObjects()));
 
         try {
             renderer.init();
@@ -160,6 +160,10 @@ public final class Vroom {
 
     public void removeRenderObject(RenderObject renderObject) {
         renderObjects.remove(renderObject);
+    }
+
+    public List<RenderObject> getRenderObjects() {
+        return renderObjects;
     }
 
     public Window getWindow() {

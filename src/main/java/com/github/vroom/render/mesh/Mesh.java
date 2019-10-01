@@ -1,12 +1,14 @@
 package com.github.vroom.render.mesh;
 
 import com.github.vroom.render.light.Material;
+import com.github.vroom.render.object.AABB;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
@@ -53,6 +55,8 @@ public final class Mesh {
     private Material material;
 
     private List<Integer> vboIdList;
+
+    private AABB[] bounds;
 
     public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
         this(positions, textCoords, normals, indices, false);
@@ -203,6 +207,18 @@ public final class Mesh {
 
     public void setMaterial(Material material) {
         this.material = material;
+    }
+
+    public AABB[] getBounds() {
+        return bounds;
+    }
+
+    public AABB[] getCopiedBounds() {
+        return Arrays.stream(bounds).map(AABB::copy).toArray(AABB[]::new);
+    }
+
+    public void setBounds(AABB[] bounds) {
+        this.bounds = bounds;
     }
 }
 

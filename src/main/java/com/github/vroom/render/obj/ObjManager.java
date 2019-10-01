@@ -1,6 +1,7 @@
 package com.github.vroom.render.obj;
 
 import com.github.vroom.render.Texture;
+import com.github.vroom.render.mesh.AABBMesh;
 import com.github.vroom.render.mesh.FiledMesh;
 import com.github.vroom.render.mesh.Mesh;
 import com.github.vroom.render.mesh.TexturedMesh;
@@ -26,6 +27,9 @@ public final class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
     public ObjManager<E> queueObj(E e) {
         processingCallables.add(() -> {
             var mesh = ObjLoader.loadMesh(e.getRelativePath());
+            if (e instanceof AABBMesh) {
+                mesh.setBounds(((AABBMesh) e).getAABBs());
+            }
             meshMap.put(e, mesh);
             return mesh;
         });
