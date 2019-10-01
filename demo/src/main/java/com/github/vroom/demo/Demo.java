@@ -16,6 +16,8 @@ import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
@@ -28,7 +30,7 @@ public class Demo {
         var lightManager = createLightManager();
         var globalLightHandler = createLightHandler();
 
-        var vroom = new Vroom(new Window("Demo", 800, 600, false, false), objManager, lightManager, globalLightHandler);
+        var vroom = new Vroom(new Window("Demo", 800, 600, true, false), objManager, lightManager, globalLightHandler);
 
         renderCubes(objManager, vroom);
 
@@ -40,7 +42,7 @@ public class Demo {
 
     private static GlobalLightHandler createLightHandler() {
         var globalLightHandler = new GlobalLightHandler();
-        globalLightHandler.setLightController(new DayNightController());
+        globalLightHandler.setLightController(new DayNightController(Duration.ofMinutes(1L)));
         return globalLightHandler;
     }
 

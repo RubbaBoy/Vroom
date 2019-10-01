@@ -6,7 +6,7 @@ import org.joml.Vector2f;
 
 public final class CameraDefaultRotationModifier implements CameraModifier {
 
-    private static final float MOUSE_SENSITIVITY = 0.001f;
+    private static final float MOUSE_SENSITIVITY = 0.2f;
 
     @Override
     public void apply(Vroom vroom, Camera camera) {

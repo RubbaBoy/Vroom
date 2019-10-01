@@ -3,7 +3,7 @@ package com.github.vroom.render.light;
 import com.github.vroom.Vroom;
 import com.github.vroom.render.light.controller.LightController;
 
-public class GlobalLightHandler {
+public final class GlobalLightHandler {
 
     private Vroom vroom;
 

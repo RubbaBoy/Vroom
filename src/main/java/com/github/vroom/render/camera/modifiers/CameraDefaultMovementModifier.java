@@ -13,7 +13,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
 
 public final class CameraDefaultMovementModifier implements CameraModifier {
 
-    private static final float CAMERA_POS_STEP = 0.0005f;
+    private static final float CAMERA_POS_STEP = 0.2f;
 
     private final Vector3f cameraInc;
 

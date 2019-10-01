@@ -27,9 +27,9 @@ public final class Renderer {
 
     private static final float Z_FAR = 1000F;
 
-    private ShaderProgram shaderProgram;
-
     private final Transformation transformation;
+
+    private ShaderProgram shaderProgram;
 
     public Renderer() {
         this.transformation = new Transformation();
@@ -50,6 +50,7 @@ public final class Renderer {
 //        shaderProgram.createUniform("useColor");
 
         shaderProgram.createMaterialUniform("material");
+
         // Create lighting related uniforms
         shaderProgram.createUniform("specularPower");
         shaderProgram.createUniform("ambientLight");

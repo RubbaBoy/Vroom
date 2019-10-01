@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ForkJoinPool;
 
-public class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
+public final class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
 
     private final List<Callable<Mesh>> processingCallables;
 
@@ -52,5 +52,4 @@ public class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
     public void cleanup() {
         meshMap.clear();
     }
-
 }

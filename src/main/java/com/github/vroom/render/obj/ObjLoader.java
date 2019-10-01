@@ -12,6 +12,10 @@ import static com.github.vroom.utility.Utility.loadResource;
 
 public final class ObjLoader {
 
+    private ObjLoader() {
+        throw new UnsupportedOperationException("This class cannot be instantiated!");
+    }
+
     public static Mesh loadMesh(String fileName) throws IOException {
         var lines = loadResource(fileName).split("\n+");
 
@@ -116,7 +120,7 @@ public final class ObjLoader {
          */
         private final IdxGroup[] idxGroups;
 
-        public Face(String v1, String v2, String v3) {
+        Face(String v1, String v2, String v3) {
             this.idxGroups = new IdxGroup[3];
 
             // Parse the lines
@@ -146,22 +150,22 @@ public final class ObjLoader {
             return idxGroup;
         }
 
-        public IdxGroup[] getFaceVertexIndices() {
+        IdxGroup[] getFaceVertexIndices() {
             return idxGroups;
         }
     }
 
     protected static class IdxGroup {
 
-        public static final int NO_VALUE = -1;
+        static final int NO_VALUE = -1;
 
-        public int idxPos;
+        int idxPos;
 
-        public int idxTextCoord;
+        int idxTextCoord;
 
-        public int idxVecNormal;
+        int idxVecNormal;
 
-        public IdxGroup() {
+        IdxGroup() {
             idxPos = NO_VALUE;
             idxTextCoord = NO_VALUE;
             idxVecNormal = NO_VALUE;

@@ -43,8 +43,8 @@ public final class Texture {
     }
 
     private static int loadTexture(String fileName) {
-        int width;
-        int height;
+        int width, height;
+
         ByteBuffer buf;
 
         try (var stack = MemoryStack.stackPush()) {
@@ -71,6 +71,7 @@ public final class Texture {
         glGenerateMipmap(GL_TEXTURE_2D);
 
         stbi_image_free(buf);
+
         return textureId;
     }
 

@@ -2,31 +2,30 @@ package com.github.vroom.render.light;
 
 import org.joml.Vector3f;
 
-public class PointLight {
+public final class PointLight {
+
+    private float intensity;
 
     private Vector3f color;
 
     private Vector3f position;
 
-    protected float intensity;
-
     private Attenuation attenuation;
 
     public PointLight(Vector3f color, Vector3f position, float intensity) {
-        attenuation = new Attenuation(1, 0, 0);
-        this.color = color;
-        this.position = position;
-        this.intensity = intensity;
-    }
-
-    public PointLight(Vector3f color, Vector3f position, float intensity, Attenuation attenuation) {
-        this(color, position, intensity);
-        this.attenuation = attenuation;
+        this(color, position, intensity, new Attenuation(1, 0, 0));
     }
 
     public PointLight(PointLight pointLight) {
         this(new Vector3f(pointLight.getColor()), new Vector3f(pointLight.getPosition()),
                 pointLight.getIntensity(), pointLight.getAttenuation());
+    }
+
+    public PointLight(Vector3f color, Vector3f position, float intensity, Attenuation attenuation) {
+        this.intensity = intensity;
+        this.color = color;
+        this.position = position;
+        this.attenuation = attenuation;
     }
 
     public Vector3f getColor() {

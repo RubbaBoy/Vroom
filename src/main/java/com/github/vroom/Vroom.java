@@ -8,12 +8,10 @@ import com.github.vroom.render.camera.Camera;
 import com.github.vroom.render.camera.CameraTransformationManager;
 import com.github.vroom.render.camera.modifiers.CameraDefaultMovementModifier;
 import com.github.vroom.render.camera.modifiers.CameraDefaultRotationModifier;
-import com.github.vroom.render.light.DirectionalLight;
 import com.github.vroom.render.light.GlobalLightHandler;
 import com.github.vroom.render.light.LightManager;
 import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
-import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +26,6 @@ public final class Vroom {
     private static final Logger LOGGER = LoggerFactory.getLogger(Vroom.class);
 
     public static final int TARGET_FPS = 60;
-
-    public static final int TARGET_UPS = 30;
-
-    private float lightAngle;
 
     private final Window window;
 
@@ -95,24 +89,11 @@ public final class Vroom {
     }
 
     private void gameLoop() {
-        double secsPerUpdate = 1d / TARGET_UPS;
-        long previous = System.currentTimeMillis();
-        double steps = 0;
-
         while (!window.windowShouldClose()) {
             long loopStartTime = System.currentTimeMillis();
-            long elapsed = loopStartTime - previous;
-
-            previous = loopStartTime;
-            steps += elapsed;
 
             handleInput();
-
-            while (steps >= secsPerUpdate) {
-                update();
-                steps -= secsPerUpdate;
-            }
-
+            update();
             render();
 
             if (window.vSync()) {

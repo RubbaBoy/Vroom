@@ -8,7 +8,7 @@ import org.joml.Vector4f;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LightManager {
+public final class LightManager {
 
     // Match up with "MAX_POINT_LIGHTS" in fragment.fs
     public static final int MAX_POINT_LIGHTS = 50;
@@ -20,15 +20,17 @@ public class LightManager {
 
     private final List<SpotLight> spotLights;
 
+    private float specularPower;
+
+    private Vector3f ambientLight;
+
     private DirectionalLight directionalLight;
-
-    private Vector3f ambientLight = new Vector3f(0, 0, 0);
-
-    private float specularPower = 10F;
 
     public LightManager() {
         this.pointLights = new ArrayList<>();
         this.spotLights = new ArrayList<>();
+        this.specularPower = 10f;
+        this.ambientLight = new Vector3f(0, 0, 0);
     }
 
     public void addLight(PointLight pointLight) {

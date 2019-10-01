@@ -3,9 +3,13 @@ package com.github.vroom.render.light;
 import com.github.vroom.render.Texture;
 import org.joml.Vector4f;
 
-public class Material {
+public final class Material {
 
     private static final Vector4f DEFAULT_COLOR = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    private float reflectance;
+
+    private Texture texture;
 
     private Vector4f ambientColor;
 
@@ -13,19 +17,12 @@ public class Material {
 
     private Vector4f specularColor;
 
-    private float reflectance;
-
-    private Texture texture;
-
     public Material() {
-        this.ambientColor = DEFAULT_COLOR;
-        this.diffuseColor = DEFAULT_COLOR;
-        this.specularColor = DEFAULT_COLOR;
-        this.reflectance = 0;
+        this(0);
     }
 
     public Material(float reflectance) {
-        this(DEFAULT_COLOR, DEFAULT_COLOR, DEFAULT_COLOR, reflectance);
+        this(DEFAULT_COLOR, reflectance);
     }
 
     public Material(Vector4f color, float reflectance) {
