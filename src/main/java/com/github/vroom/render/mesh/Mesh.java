@@ -55,10 +55,15 @@ public final class Mesh {
     private List<Integer> vboIdList;
 
     public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
+        this(positions, textCoords, normals, indices, false);
+    }
+
+    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices, boolean createMesh) {
         this.positions = positions;
         this.textCoords = textCoords;
         this.normals = normals;
         this.indices = indices;
+        if (createMesh) createMesh();
     }
 
     public void createMesh() {

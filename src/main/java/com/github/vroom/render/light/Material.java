@@ -25,6 +25,11 @@ public final class Material {
         this(DEFAULT_COLOR, reflectance);
     }
 
+    public Material(Texture texture, float reflectance) {
+        this(reflectance);
+        this.texture = texture;
+    }
+
     public Material(Vector4f color, float reflectance) {
         this(color, color, color, reflectance);
     }

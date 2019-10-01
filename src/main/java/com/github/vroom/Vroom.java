@@ -10,13 +10,16 @@ import com.github.vroom.render.camera.modifiers.CameraDefaultMovementModifier;
 import com.github.vroom.render.camera.modifiers.CameraDefaultRotationModifier;
 import com.github.vroom.render.light.GlobalLightHandler;
 import com.github.vroom.render.light.LightManager;
+import com.github.vroom.render.mesh.Mesh;
 import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
+import com.github.vroom.terrain.Terrain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.glViewport;
@@ -66,6 +69,14 @@ public final class Vroom {
         cameraTransformationManager.addModifier(new CameraDefaultRotationModifier());
         cameraTransformationManager.addModifier(new CameraDefaultMovementModifier(this));
 
+        float terrainScale = 10f;
+        int terrainSize = 3;
+        float minY = -0.1f;
+        float maxY = 0.1f;
+        int textInc = 40;
+        var terrain = new Terrain(terrainSize, terrainScale, minY, maxY, "textures/heightmap.png", "textures/terrain.png", textInc);
+        renderObjects.addAll(Arrays.asList(terrain.getRenderObjects()));
+
         try {
             renderer.init();
         } catch (IOException e) {
@@ -77,6 +88,8 @@ public final class Vroom {
 
         keyboardInputManager.init(window);
         mouseInputMethod.init(window);
+
+        LOGGER.info("Objects: {}", renderObjects);
     }
 
     public void run() {
@@ -125,6 +138,7 @@ public final class Vroom {
         renderer.cleanup();
         keyboardInputManager.cleanup();
         objManager.cleanup();
+//        renderObjects.stream().map(RenderObject::getMesh).forEach(Mesh::cleanup);
     }
 
     private void sync(long loopStartTime) {
