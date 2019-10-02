@@ -3,6 +3,7 @@ package com.github.vroom.render;
 import com.github.vroom.render.camera.Camera;
 import com.github.vroom.render.light.LightManager;
 import com.github.vroom.render.mesh.Mesh;
+import com.github.vroom.render.mesh.MultiMesh;
 import com.github.vroom.render.object.RenderObject;
 import com.github.vroom.render.shader.ShaderProgram;
 import com.github.vroom.render.transform.Transformation;
@@ -82,17 +83,18 @@ public final class Renderer {
         shaderProgram.setUniform("texture_sampler", 0);
 
         for (var renderObject : renderObjects) {
-            Mesh mesh = renderObject.getMesh();
+            MultiMesh multiMesh = renderObject.getMultiMesh();
+            for (Mesh mesh : multiMesh.getMeshes()) {
+                // Set model view matrix for this object
+                Matrix4f modelViewMatrix = transformation.getModelViewMatrix(renderObject, viewMatrix);
+                shaderProgram.setUniform("modelViewMatrix", modelViewMatrix);
 
-            // Set model view matrix for this object
-            Matrix4f modelViewMatrix = transformation.getModelViewMatrix(renderObject, viewMatrix);
-            shaderProgram.setUniform("modelViewMatrix", modelViewMatrix);
+                // Set material for this object
+                shaderProgram.setUniform("material", mesh.getMaterial());
 
-            // Set material for this object
-            shaderProgram.setUniform("material", mesh.getMaterial());
-
-            // Render the mesh for this render object
-            mesh.render();
+                // Render the mesh for this render object
+                mesh.render();
+            }
         }
 
         shaderProgram.unbind();

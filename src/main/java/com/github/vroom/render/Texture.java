@@ -1,6 +1,8 @@
 package com.github.vroom.render;
 
 import org.lwjgl.system.MemoryStack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -22,17 +24,24 @@ import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_load;
-import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
 
 public final class Texture {
 
-    private final int id;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Texture.class);
 
-    private final int width;
+    private final String fileName;
 
-    private final int height;
+    private int id;
+
+    private int width;
+
+    private int height;
 
     public Texture(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public void createTexture() {
         ByteBuffer buf;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -50,35 +59,6 @@ public final class Texture {
             height = h.get();
         }
 
-        this.id = createTexture(buf);
-
-        stbi_image_free(buf);
-    }
-
-    public Texture(ByteBuffer imageBuffer) {
-        ByteBuffer buf;
-
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            IntBuffer w = stack.mallocInt(1);
-            IntBuffer h = stack.mallocInt(1);
-            IntBuffer channels = stack.mallocInt(1);
-
-            buf = stbi_load_from_memory(imageBuffer, w, h, channels, 4);
-
-            if (buf == null) {
-                throw new RuntimeException("Image file not loaded: " + stbi_failure_reason());
-            }
-
-            width = w.get();
-            height = h.get();
-        }
-
-        this.id = createTexture(buf);
-
-        stbi_image_free(buf);
-    }
-
-    private int createTexture(ByteBuffer buf) {
         // Create a new OpenGL texture
         int textureId = glGenTextures();
 
@@ -97,7 +77,9 @@ public final class Texture {
         // Generate Mip Map
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        return textureId;
+        stbi_image_free(buf);
+
+        this.id = textureId;
     }
 
     public int getWidth() {

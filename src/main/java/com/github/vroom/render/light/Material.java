@@ -5,7 +5,7 @@ import org.joml.Vector4f;
 
 public final class Material {
 
-    private static final Vector4f DEFAULT_COLOR = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    public static final Vector4f DEFAULT_COLOR = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 
     private float reflectance;
 

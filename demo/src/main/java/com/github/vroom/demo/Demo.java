@@ -4,13 +4,14 @@ import com.github.vroom.Vroom;
 import com.github.vroom.input.keyboard.KeyCombo;
 import com.github.vroom.input.keyboard.KeyListener;
 import com.github.vroom.input.mouse.MouseListener;
+import com.github.vroom.player.Player;
 import com.github.vroom.render.Window;
 import com.github.vroom.render.light.GlobalLightHandler;
 import com.github.vroom.render.light.LightManager;
 import com.github.vroom.render.light.controller.DayNightController;
 import com.github.vroom.render.light.point.Attenuation;
 import com.github.vroom.render.light.point.PointLight;
-import com.github.vroom.render.mesh.Mesh;
+import com.github.vroom.render.mesh.MultiMesh;
 import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
 import org.joml.Vector3f;
@@ -34,11 +35,19 @@ public final class Demo {
         var vroom = new Vroom(new Window("Demo", 800, 600, true, false), objManager, lightManager, globalLightHandler);
 
         renderCubes(objManager, vroom);
+        createPlayer(vroom, objManager);
 
         registerKeyboardListener(vroom);
         registerMouseListener(vroom);
 
         vroom.run();
+    }
+
+    private static Player createPlayer(Vroom vroom, ObjManager<MeshFile> objManager) {
+        MultiMesh mesh = objManager.get(MeshFile.PLAYER);
+        var player = new Player(vroom, mesh); // objManager.get(MeshFile.PLAYER)
+        vroom.addRenderObject(player.getBodyRender());
+        return player;
     }
 
     private static GlobalLightHandler createLightHandler(LightManager lightManager) {
@@ -69,12 +78,15 @@ public final class Demo {
 
     private static ObjManager<MeshFile> createObjManager() {
         var objManager = new ObjManager<MeshFile>();
-        objManager.queueObj(MeshFile.CUBE).waitForObjects();
+        objManager
+                .queueObj(MeshFile.CUBE)
+                .queueObj(MeshFile.PLAYER)
+                .waitForObjects();
         return objManager;
     }
 
     private static void renderCubes(ObjManager<MeshFile> objManager, Vroom vroom) {
-        Mesh mesh = objManager.get(MeshFile.CUBE);
+        MultiMesh mesh = objManager.get(MeshFile.CUBE);
 
         for (int x = 0; x < 5; x++) {
             for (int y = 0; y < 53; y++) {

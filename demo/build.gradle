@@ -22,6 +22,7 @@ dependencies {
     implementation 'org.lwjgl:lwjgl-glfw'
     implementation 'org.lwjgl:lwjgl-opengl'
     implementation 'org.lwjgl:lwjgl-stb'
+    implementation 'org.lwjgl:lwjgl-assimp'
     implementation 'org.joml:joml:1.9.17'
     implementation 'org.slf4j:slf4j-api:1.7.28'
 
@@ -29,4 +30,5 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-assimp::$lwjglNatives"
 }

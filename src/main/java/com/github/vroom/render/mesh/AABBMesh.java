@@ -4,6 +4,6 @@ import com.github.vroom.render.object.AABB;
 
 public interface AABBMesh {
 
-    AABB[] getAABBs();
+    AABB[][] getAABBs();
 
 }

@@ -66,18 +66,10 @@ public final class Vroom {
         cameraTransformationManager.addModifier(new CameraDefaultRotationModifier());
         cameraTransformationManager.addModifier(new CameraDefaultMovementModifier());
 
-//        float terrainScale = 10f;
-//        int terrainSize = 3;
-//        float minY = -0.1f;
-//        float maxY = 0.1f;
-//        int textInc = 40;
-//        var terrain = new Terrain(terrainSize, terrainScale, minY, maxY, "textures/heightmap.png", "textures/terrain.png", textInc);
-//        renderObjects.addAll(Arrays.asList(terrain.getRenderObjects()));
-
         try {
             renderer.init();
         } catch (IOException e) {
-            LOGGER.error("Exception while creating Renderer!", e);
+            LOGGER.error("Exception while initializing Renderer!", e);
         }
 
         objManager.createMeshes();

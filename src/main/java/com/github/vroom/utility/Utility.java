@@ -34,4 +34,8 @@ public final class Utility {
         return floatArr;
     }
 
+    public static int[] listIntToArray(List<Integer> list) {
+        return list.stream().mapToInt(Integer::intValue).toArray();
+    }
+
 }

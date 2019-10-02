@@ -56,7 +56,7 @@ public final class Mesh {
 
     private List<Integer> vboIdList;
 
-    private AABB[] bounds;
+    private AABB[] bounds = new AABB[0];
 
     public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
         this(positions, textCoords, normals, indices, false);
