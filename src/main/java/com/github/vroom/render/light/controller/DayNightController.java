@@ -46,6 +46,7 @@ public final class DayNightController implements LightController {
 
         if (lightAngle <= 90 || lightAngle >= 270) {
             factor = (float) Math.sin(Math.toRadians(lightAngle + 90));
+            lightManager.getAmbientLight().set(factor / 2);
         } else {
             factor = 0;
         }

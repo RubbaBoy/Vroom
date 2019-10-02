@@ -50,16 +50,16 @@ public final class LightManager {
         spotLights.add(spotLight);
     }
 
+    public Vector3f getAmbientLight() {
+        return ambientLight;
+    }
+
     public DirectionalLight getDirectionalLight() {
         return directionalLight;
     }
 
     public void setDirectionalLight(DirectionalLight directionalLight) {
         this.directionalLight = directionalLight;
-    }
-
-    public void setAmbientLight(Vector3f vector3f) {
-        ambientLight = vector3f;
     }
 
     public float getSpecularPower() {

@@ -55,7 +55,7 @@ public final class Demo {
         pointLight.setAttenuation(new Attenuation(0.7f, 0.7f, 0.7f));
 
         var lightManager = new LightManager();
-        lightManager.setAmbientLight(new Vector3f(0.1f, 0.1f, 0.1f));
+        lightManager.getAmbientLight().set(0.1f);
 
         for (int i = 0; i < 53 / 5; i++) {
             var clone = new PointLight(pointLight);

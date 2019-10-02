@@ -85,8 +85,6 @@ public final class Vroom {
 
         keyboardInputManager.init(window);
         mouseInputMethod.init(window);
-
-        LOGGER.info("Objects: {}", renderObjects);
     }
 
     public void run() {
