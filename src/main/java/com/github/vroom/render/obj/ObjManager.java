@@ -27,10 +27,13 @@ public final class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
     public ObjManager<E> queueObj(E e) {
         processingCallables.add(() -> {
             var mesh = ObjLoader.loadMesh(e.getRelativePath());
+
             if (e instanceof AABBMesh) {
                 mesh.setBounds(((AABBMesh) e).getAABBs());
             }
+
             meshMap.put(e, mesh);
+
             return mesh;
         });
 

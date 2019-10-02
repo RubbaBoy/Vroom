@@ -2,8 +2,9 @@ package com.github.vroom.render.shader;
 
 import com.github.vroom.render.light.DirectionalLight;
 import com.github.vroom.render.light.Material;
-import com.github.vroom.render.light.PointLight;
 import com.github.vroom.render.light.SpotLight;
+import com.github.vroom.render.light.point.Attenuation;
+import com.github.vroom.render.light.point.PointLight;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -68,7 +69,7 @@ public final class ShaderProgram {
         vertexShaderId = createShader(shaderCode, GL_FRAGMENT_SHADER);
     }
 
-    protected int createShader(String shaderCode, int shaderType) {
+    private int createShader(String shaderCode, int shaderType) {
         var shaderId = glCreateShader(shaderType);
 
         if (shaderType == 0) {
@@ -148,7 +149,9 @@ public final class ShaderProgram {
         setUniform(uniformName + ".color", pointLight.getColor() );
         setUniform(uniformName + ".position", pointLight.getPosition());
         setUniform(uniformName + ".intensity", pointLight.getIntensity());
-        PointLight.Attenuation att = pointLight.getAttenuation();
+
+        Attenuation att = pointLight.getAttenuation();
+
         setUniform(uniformName + ".att.constant", att.getConstant());
         setUniform(uniformName + ".att.linear", att.getLinear());
         setUniform(uniformName + ".att.exponent", att.getExponent());
@@ -194,6 +197,7 @@ public final class ShaderProgram {
 
     public void setUniform(String uniformName, PointLight[] pointLights) {
         int numLights = pointLights != null ? pointLights.length : 0;
+
         for (int i = 0; i < numLights; i++) {
             setUniform(uniformName, pointLights[i], i);
         }
@@ -205,6 +209,7 @@ public final class ShaderProgram {
 
     public void setUniform(String uniformName, SpotLight[] spotLights) {
         int numLights = spotLights != null ? spotLights.length : 0;
+
         for (int i = 0; i < numLights; i++) {
             setUniform(uniformName, spotLights[i], i);
         }

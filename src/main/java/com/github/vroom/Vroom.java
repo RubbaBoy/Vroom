@@ -10,16 +10,13 @@ import com.github.vroom.render.camera.modifiers.CameraDefaultMovementModifier;
 import com.github.vroom.render.camera.modifiers.CameraDefaultRotationModifier;
 import com.github.vroom.render.light.GlobalLightHandler;
 import com.github.vroom.render.light.LightManager;
-import com.github.vroom.render.mesh.Mesh;
 import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
-import com.github.vroom.terrain.Terrain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.glViewport;
@@ -54,7 +51,7 @@ public final class Vroom {
         this.window = window;
         this.objManager = objManager;
         this.lightManager = lightManager;
-        this.globalLightHandler = globalLightHandler.setVroom(this);
+        this.globalLightHandler = globalLightHandler;
         this.camera = new Camera(this);
         this.cameraTransformationManager = new CameraTransformationManager(this, camera);
         this.renderer = new Renderer();
@@ -67,7 +64,7 @@ public final class Vroom {
         window.init();
 
         cameraTransformationManager.addModifier(new CameraDefaultRotationModifier());
-        cameraTransformationManager.addModifier(new CameraDefaultMovementModifier(this));
+        cameraTransformationManager.addModifier(new CameraDefaultMovementModifier());
 
 //        float terrainScale = 10f;
 //        int terrainSize = 3;

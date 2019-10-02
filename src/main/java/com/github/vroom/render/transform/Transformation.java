@@ -21,39 +21,28 @@ public final class Transformation {
 
     public final Matrix4f getProjectionMatrix(float fov, float width, float height, float zNear, float zFar) {
         float aspectRatio = width / height;
-
-        projectionMatrix.identity();
-        projectionMatrix.perspective(fov, aspectRatio, zNear, zFar);
-
-        return projectionMatrix;
+        return projectionMatrix.identity().perspective(fov, aspectRatio, zNear, zFar);
     }
 
     public Matrix4f getModelViewMatrix(RenderObject renderObject, Matrix4f viewMatrix) {
         Vector3f rotation = renderObject.getRotation();
 
-        modelViewMatrix.identity();
-        modelViewMatrix.set(viewMatrix).translate(renderObject.getPosition())
+        return modelViewMatrix.identity().set(viewMatrix).translate(renderObject.getPosition())
                 .rotateX((float) Math.toRadians(-rotation.x))
                 .rotateY((float) Math.toRadians(-rotation.y))
                 .rotateZ((float) Math.toRadians(-rotation.z))
                 .scale(renderObject.getScale());
-
-        return modelViewMatrix;
     }
 
     public Matrix4f getViewMatrix(Camera camera) {
         Vector3f cameraPos = camera.getPosition();
         Vector3f rotation = camera.getRotation();
 
-        // First do the rotation so camera rotates over its position
-        viewMatrix.identity();
-        viewMatrix.rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0))
-                .rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0));
-
-        // Then do the translation
-        viewMatrix.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-
-        return viewMatrix;
+        // First do the rotation so camera rotates over its position, then do the translation
+        return viewMatrix.identity()
+                .rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0))
+                .rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0))
+                .translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
     }
 
 }

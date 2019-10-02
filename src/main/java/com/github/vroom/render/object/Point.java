@@ -1,6 +1,6 @@
 package com.github.vroom.render.object;
 
-public class Point {
+public final class Point {
 
     private int x;
 
@@ -15,12 +15,12 @@ public class Point {
         return x;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
     public int getY() {
         return y;
+    }
+
+    public void setX(int x) {
+        this.x = x;
     }
 
     public void setY(int y) {

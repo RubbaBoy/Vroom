@@ -17,7 +17,7 @@ public final class CameraDefaultMovementModifier implements CameraModifier {
 
     private final Vector3f cameraInc;
 
-    public CameraDefaultMovementModifier(Vroom vroom) {
+    public CameraDefaultMovementModifier() {
         this.cameraInc = new Vector3f(0, 0, 0);
     }
 
@@ -45,9 +45,7 @@ public final class CameraDefaultMovementModifier implements CameraModifier {
             cameraInc.y = -1;
         }
 
-        if (cameraInc.x != 0 || cameraInc.y != 0 || cameraInc.z != 0) {
-            camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP,
-                    cameraInc.z * CAMERA_POS_STEP);
-        }
+        camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP,
+                cameraInc.z * CAMERA_POS_STEP);
     }
 }

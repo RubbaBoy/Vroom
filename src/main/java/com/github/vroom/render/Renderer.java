@@ -45,10 +45,6 @@ public final class Renderer {
         shaderProgram.createUniform("modelViewMatrix");
         shaderProgram.createUniform("texture_sampler");
 
-        // Create uniform for default color and the flag that controls it
-//        shaderProgram.createUniform("color");
-//        shaderProgram.createUniform("useColor");
-
         shaderProgram.createMaterialUniform("material");
 
         // Create lighting related uniforms
@@ -74,7 +70,8 @@ public final class Renderer {
         shaderProgram.bind();
 
         // Update projection Matrix
-        Matrix4f projectionMatrix = transformation.getProjectionMatrix(FOV, window.getWidth(), window.getHeight(), Z_NEAR, Z_FAR);
+        Matrix4f projectionMatrix = transformation.getProjectionMatrix(FOV, window.getWidth(), window.getHeight(),
+                Z_NEAR, Z_FAR);
         shaderProgram.setUniform("projectionMatrix", projectionMatrix);
 
         // Update view Matrix
@@ -91,8 +88,10 @@ public final class Renderer {
             Matrix4f modelViewMatrix = transformation.getModelViewMatrix(renderObject, viewMatrix);
             shaderProgram.setUniform("modelViewMatrix", modelViewMatrix);
 
-            // Render the mesh for this render object
+            // Set material for this object
             shaderProgram.setUniform("material", mesh.getMaterial());
+
+            // Render the mesh for this render object
             mesh.render();
         }
 

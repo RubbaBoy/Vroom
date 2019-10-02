@@ -9,13 +9,16 @@ import com.github.vroom.render.object.AABBBox;
 
 public enum MeshFile implements FiledMesh, TexturedMesh, AABBMesh {
 
-    CUBE("/models/cube.obj", "textures/grassblock.png", new Material(0.5F), AABBBox.fromRelative(0, 0, 0, 1, 1, 1));
+    CUBE("/models/cube.obj", "textures/grassblock.png", new Material(0.5F),
+            AABBBox.fromRelative(0, 0, 0, 1, 1, 1));
 
     private final String relativePath;
 
     private final String texturePath;
-    private Material material;
-    private AABB[] aabbs;
+
+    private final Material material;
+
+    private final AABB[] aabbs;
 
     MeshFile(String relativePath, String texturePath, Material material, AABB... aabbs) {
         this.relativePath = relativePath;

@@ -3,8 +3,6 @@ package com.github.vroom.input.keyboard;
 import com.github.vroom.Vroom;
 import com.github.vroom.render.Window;
 import org.lwjgl.glfw.GLFWKeyCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,12 +17,11 @@ import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
 
 public final class KeyboardInputManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyboardInputManager.class);
+    private final Vroom vroom;
 
     private final Map<KeyCombo, List<KeyListener>> listenerMap;
 
     private GLFWKeyCallback keyCallback;
-    private Vroom vroom;
 
     public KeyboardInputManager(Vroom vroom) {
         this.vroom = vroom;
@@ -62,7 +59,9 @@ public final class KeyboardInputManager {
     }
 
     public void cleanup() {
-        if (keyCallback != null) keyCallback.free();
+        if (keyCallback != null) {
+            keyCallback.free();
+        }
     }
 
     public boolean isKeyPressed(int key) {

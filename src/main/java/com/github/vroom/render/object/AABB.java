@@ -6,11 +6,12 @@ public interface AABB {
 
     void setPosition(float x, float y, float z);
 
-    boolean intersect(float x, float y, float z);
+    boolean intersects(float x, float y, float z);
 
-    boolean intersect(Vector3f vector3f);
+    boolean intersects(Vector3f vector3f);
 
-    boolean intersect(AABB aabb);
+    boolean intersects(AABB aabb);
 
     AABB copy();
+
 }

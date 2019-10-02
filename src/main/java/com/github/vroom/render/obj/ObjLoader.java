@@ -26,7 +26,10 @@ public final class ObjLoader {
 
         for (String line : lines) {
             String[] tokens = line.split("\\s+");
-            if (tokens.length == 0) continue;
+
+            if (tokens.length == 0) {
+                continue;
+            }
 
             switch (tokens[0]) {
                 case "v":
@@ -96,6 +99,7 @@ public final class ObjLoader {
                                           float[] texCoordArr, float[] normArr) {
         // Set index for vertex coordinates
         int posIndex = indices.idxPos;
+
         indicesList.add(posIndex);
 
         // Reorder texture coordinates

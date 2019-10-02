@@ -67,7 +67,10 @@ public final class Mesh {
         this.textCoords = textCoords;
         this.normals = normals;
         this.indices = indices;
-        if (createMesh) createMesh();
+
+        if (createMesh) {
+            createMesh();
+        }
     }
 
     public void createMesh() {
@@ -197,16 +200,8 @@ public final class Mesh {
         return color;
     }
 
-    public void setColor(Vector3f color) {
-        this.color = color;
-    }
-
     public Material getMaterial() {
         return material;
-    }
-
-    public void setMaterial(Material material) {
-        this.material = material;
     }
 
     public AABB[] getBounds() {
@@ -215,6 +210,14 @@ public final class Mesh {
 
     public AABB[] getCopiedBounds() {
         return Arrays.stream(bounds).map(AABB::copy).toArray(AABB[]::new);
+    }
+
+    public void setColor(Vector3f color) {
+        this.color = color;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
     }
 
     public void setBounds(AABB[] bounds) {

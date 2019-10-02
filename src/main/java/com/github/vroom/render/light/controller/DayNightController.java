@@ -7,7 +7,7 @@ import org.joml.Vector3f;
 
 import java.time.Duration;
 
-public class DayNightController implements LightController {
+public final class DayNightController implements LightController {
 
     private final float increment;
 
@@ -25,7 +25,7 @@ public class DayNightController implements LightController {
     }
 
     @Override
-    public void init(Vroom vroom, LightManager lightManager) {
+    public void init(LightManager lightManager) {
         var lightColor = new Vector3f(1, 1, 1);
         var lightPosition = new Vector3f(0, 0, 0);
 
@@ -35,7 +35,7 @@ public class DayNightController implements LightController {
     }
 
     @Override
-    public void update(Vroom vroom, LightManager lightManager) {
+    public void update(LightManager lightManager) {
         lightAngle += increment;
 
         if (lightAngle >= 360f) {

@@ -1,5 +1,6 @@
 package com.github.vroom.render.light;
 
+import com.github.vroom.render.light.point.PointLight;
 import org.joml.Vector3f;
 
 public final class SpotLight {
@@ -13,11 +14,13 @@ public final class SpotLight {
     public SpotLight(PointLight pointLight, Vector3f coneDirection, float cutOffAngle) {
         this.pointLight = pointLight;
         this.coneDirection = coneDirection;
+
         setCutOffAngle(cutOffAngle);
     }
 
     public SpotLight(SpotLight spotLight) {
         this(new PointLight(spotLight.getPointLight()), new Vector3f(spotLight.getConeDirection()), 0);
+
         setCutOff(spotLight.getCutOff());
     }
 
@@ -25,20 +28,20 @@ public final class SpotLight {
         return pointLight;
     }
 
-    public void setPointLight(PointLight pointLight) {
-        this.pointLight = pointLight;
-    }
-
     public Vector3f getConeDirection() {
         return coneDirection;
     }
 
-    public void setConeDirection(Vector3f coneDirection) {
-        this.coneDirection = coneDirection;
-    }
-
     public float getCutOff() {
         return cutOff;
+    }
+
+    public void setPointLight(PointLight pointLight) {
+        this.pointLight = pointLight;
+    }
+
+    public void setConeDirection(Vector3f coneDirection) {
+        this.coneDirection = coneDirection;
     }
 
     public void setCutOff(float cutOff) {

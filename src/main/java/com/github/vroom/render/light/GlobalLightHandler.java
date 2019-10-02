@@ -1,35 +1,23 @@
 package com.github.vroom.render.light;
 
-import com.github.vroom.Vroom;
 import com.github.vroom.render.light.controller.LightController;
 
 public final class GlobalLightHandler {
 
-    private Vroom vroom;
+    private final LightManager lightManager;
 
-    private LightManager lightManager;
+    private final LightController lightController;
 
-    private LightController controller;
-
-    public GlobalLightHandler setVroom(Vroom vroom) {
-        this.vroom = vroom;
-        lightManager = vroom.getLightManager();
-        return this;
-    }
-
-    public void setLightController(LightController controller) {
-        this.controller = controller;
+    public GlobalLightHandler(LightManager lightManager, LightController lightController) {
+        this.lightManager = lightManager;
+        this.lightController = lightController;
     }
 
     public void init() {
-        if (controller != null) {
-            controller.init(vroom, lightManager);
-        }
+        lightController.init(lightManager);
     }
 
     public void update() {
-        if (controller != null) {
-            controller.update(vroom, lightManager);
-        }
+        lightController.update(lightManager);
     }
 }

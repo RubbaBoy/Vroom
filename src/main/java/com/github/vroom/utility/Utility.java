@@ -2,6 +2,7 @@ package com.github.vroom.utility;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.List;
 
 public final class Utility {
@@ -17,11 +18,19 @@ public final class Utility {
     }
 
     public static float[] listToArray(List<Float> list) {
-        int size = list != null ? list.size() : 0;
-        var floatArr = new float[size];
-        for (int i = 0; i < size; i++) {
-            floatArr[i] = list.get(i);
+        if (list == null) {
+            return new float[0];
         }
+
+        int size = list.size();
+        var floatArr = new float[size];
+
+        Iterator<Float> iterator = list.iterator();
+
+        for (int i = 0; i < size && iterator.hasNext(); i++) {
+            floatArr[i] = iterator.next();
+        }
+
         return floatArr;
     }
 

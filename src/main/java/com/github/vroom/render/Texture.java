@@ -34,13 +34,14 @@ public final class Texture {
 
     public Texture(String fileName) {
         ByteBuffer buf;
-        // Load Texture file
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
             IntBuffer h = stack.mallocInt(1);
             IntBuffer channels = stack.mallocInt(1);
 
             buf = stbi_load(fileName, w, h, channels, 4);
+
             if (buf == null) {
                 throw new RuntimeException("Image file [" + fileName  + "] not loaded: " + stbi_failure_reason());
             }
@@ -56,13 +57,14 @@ public final class Texture {
 
     public Texture(ByteBuffer imageBuffer) {
         ByteBuffer buf;
-        // Load Texture file
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
             IntBuffer h = stack.mallocInt(1);
             IntBuffer channels = stack.mallocInt(1);
 
             buf = stbi_load_from_memory(imageBuffer, w, h, channels, 4);
+
             if (buf == null) {
                 throw new RuntimeException("Image file not loaded: " + stbi_failure_reason());
             }
@@ -79,6 +81,7 @@ public final class Texture {
     private int createTexture(ByteBuffer buf) {
         // Create a new OpenGL texture
         int textureId = glGenTextures();
+
         // Bind the texture
         glBindTexture(GL_TEXTURE_2D, textureId);
 
@@ -89,8 +92,8 @@ public final class Texture {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         // Upload the texture data
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                GL_RGBA, GL_UNSIGNED_BYTE, buf);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+
         // Generate Mip Map
         glGenerateMipmap(GL_TEXTURE_2D);
 

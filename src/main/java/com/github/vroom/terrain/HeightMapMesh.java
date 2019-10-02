@@ -9,14 +9,13 @@ import org.lwjgl.system.MemoryStack;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.github.vroom.utility.Utility.listToArray;
 import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_load;
 
-public class HeightMapMesh {
+public final class HeightMapMesh {
 
     private static final int MAX_COLOUR = 255 * 255 * 255;
 
@@ -35,11 +34,14 @@ public class HeightMapMesh {
         this.maxY = maxY;
 
         ByteBuffer buf;
+
         int width;
         int height;
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
             IntBuffer h = stack.mallocInt(1);
+
             IntBuffer channels = stack.mallocInt(1);
 
             if ((buf = stbi_load(heightMapFile, w, h, channels, 4)) == null) {
@@ -87,13 +89,15 @@ public class HeightMapMesh {
                 }
             }
         }
+
         float[] posArr = listToArray(positions);
-        int[] indicesArr = indices.stream().mapToInt(i -> i).toArray();
         float[] textCoordsArr = listToArray(textCoords);
         float[] normalsArr = calcNormals(posArr, width, height);
+
+        int[] indicesArr = indices.stream().mapToInt(Integer::intValue).toArray();
+
         mesh = new Mesh(posArr, textCoordsArr, normalsArr, indicesArr, true);
-        var material = new Material(texture, 0.0f);
-        mesh.setMaterial(material);
+        mesh.setMaterial(new Material(texture, 0.0f));
 
         stbi_image_free(buf);
     }
@@ -120,8 +124,10 @@ public class HeightMapMesh {
         var v23 = new Vector3f();
         var v34 = new Vector3f();
         var v41 = new Vector3f();
+
         var normals = new ArrayList<Float>();
         var normal = new Vector3f();
+
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 if (row > 0 && row < height - 1 && col > 0 && col < width - 1) {
@@ -173,23 +179,29 @@ public class HeightMapMesh {
                     normal.y = 1;
                     normal.z = 0;
                 }
+
                 normal.normalize();
+
                 normals.add(normal.x);
                 normals.add(normal.y);
                 normals.add(normal.z);
             }
         }
+
         return listToArray(normals);
     }
 
     private float getHeight(int x, int z, int width, ByteBuffer buffer) {
-        byte r = buffer.get(x * 4 + 0 + z * 4 * width);
-        byte g = buffer.get(x * 4 + 1 + z * 4 * width);
-        byte b = buffer.get(x * 4 + 2 + z * 4 * width);
-        byte a = buffer.get(x * 4 + 3 + z * 4 * width);
-        int argb = ((0xFF & a) << 24) | ((0xFF & r) << 16)
-                | ((0xFF & g) << 8) | (0xFF & b);
-        return this.minY + Math.abs(this.maxY - this.minY) * ((float) argb / (float) MAX_COLOUR);
+        int position = x * 4 + z * 4 * width;
+
+        byte r = buffer.get(position);
+        byte g = buffer.get(position + 1);
+        byte b = buffer.get(position + 2);
+        byte a = buffer.get(position + 3);
+
+        int argb = ((0xFF & a) << 24) | ((0xFF & r) << 16) | ((0xFF & g) << 8) | (0xFF & b);
+
+        return minY + Math.abs(maxY - minY) * (argb / (float) MAX_COLOUR);
     }
 
 }

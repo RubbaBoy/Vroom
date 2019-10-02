@@ -7,8 +7,9 @@ import com.github.vroom.input.mouse.MouseListener;
 import com.github.vroom.render.Window;
 import com.github.vroom.render.light.GlobalLightHandler;
 import com.github.vroom.render.light.LightManager;
-import com.github.vroom.render.light.PointLight;
 import com.github.vroom.render.light.controller.DayNightController;
+import com.github.vroom.render.light.point.Attenuation;
+import com.github.vroom.render.light.point.PointLight;
 import com.github.vroom.render.mesh.Mesh;
 import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
@@ -21,25 +22,18 @@ import java.time.Duration;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
-public class Demo {
+public final class Demo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Demo.class);
 
     public static void main(String[] args) {
         var objManager = createObjManager();
         var lightManager = createLightManager();
-        var globalLightHandler = createLightHandler();
+        var globalLightHandler = createLightHandler(lightManager);
 
         var vroom = new Vroom(new Window("Demo", 800, 600, true, false), objManager, lightManager, globalLightHandler);
 
         renderCubes(objManager, vroom);
-
-//        Mesh mesh = objManager.get(MeshFile.CUBE);
-//        var renderObject = new RenderObject(mesh, true);
-//        renderObject.setScale(0.5F);
-//        renderObject.setPosition(0, 0, 0);
-//        renderObject.setRotation(0, 0, 0);
-//        vroom.addRenderObject(renderObject);
 
         registerKeyboardListener(vroom);
         registerMouseListener(vroom);
@@ -47,10 +41,8 @@ public class Demo {
         vroom.run();
     }
 
-    private static GlobalLightHandler createLightHandler() {
-        var globalLightHandler = new GlobalLightHandler();
-        globalLightHandler.setLightController(new DayNightController(Duration.ofMinutes(1L)));
-        return globalLightHandler;
+    private static GlobalLightHandler createLightHandler(LightManager lightManager) {
+        return new GlobalLightHandler(lightManager, new DayNightController(Duration.ofMinutes(1L)));
     }
 
     private static LightManager createLightManager() {
@@ -60,12 +52,9 @@ public class Demo {
         float lightIntensity = 2f;
 
         var pointLight = new PointLight(lightColor, lightPosition, lightIntensity);
-        var att = new PointLight.Attenuation(0.7f, 0.7f, 0.7f);
-
-        pointLight.setAttenuation(att);
+        pointLight.setAttenuation(new Attenuation(0.7f, 0.7f, 0.7f));
 
         var lightManager = new LightManager();
-
         lightManager.setAmbientLight(new Vector3f(0.1f, 0.1f, 0.1f));
 
         for (int i = 0; i < 53 / 5; i++) {

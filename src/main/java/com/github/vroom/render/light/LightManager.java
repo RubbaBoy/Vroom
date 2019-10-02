@@ -1,5 +1,6 @@
 package com.github.vroom.render.light;
 
+import com.github.vroom.render.light.point.PointLight;
 import com.github.vroom.render.shader.ShaderProgram;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -67,10 +68,6 @@ public final class LightManager {
 
     public void setSpecularPower(float specularPower) {
         this.specularPower = specularPower;
-    }
-
-    public void init() {
-
     }
 
     public void render(ShaderProgram shaderProgram, Matrix4f viewMatrix) {

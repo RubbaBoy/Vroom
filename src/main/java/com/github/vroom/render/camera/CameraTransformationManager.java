@@ -6,7 +6,7 @@ import com.github.vroom.render.camera.modifiers.CameraModifier;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CameraTransformationManager {
+public final class CameraTransformationManager {
 
     private final Vroom vroom;
 
@@ -20,13 +20,11 @@ public class CameraTransformationManager {
         this.modifiers = new ArrayList<>();
     }
 
-    public CameraModifier addModifier(CameraModifier modifier) {
+    public void addModifier(CameraModifier modifier) {
         modifiers.add(modifier);
-        return modifier;
     }
 
     public void update() {
         modifiers.forEach(modifier -> modifier.apply(vroom, camera));
     }
-
 }

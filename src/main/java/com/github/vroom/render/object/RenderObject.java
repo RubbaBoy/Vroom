@@ -3,6 +3,8 @@ package com.github.vroom.render.object;
 import com.github.vroom.render.mesh.Mesh;
 import org.joml.Vector3f;
 
+import java.util.Arrays;
+
 public final class RenderObject {
 
     private float scale;
@@ -13,9 +15,9 @@ public final class RenderObject {
 
     private final Vector3f rotation;
 
-    private boolean collision;
+    private final AABB[] bounds;
 
-    private AABB[] bounds;
+    private boolean collision;
 
     public RenderObject(Mesh mesh) {
         this(mesh, mesh.getBounds().length > 0);
@@ -46,41 +48,32 @@ public final class RenderObject {
         return rotation;
     }
 
-    public void setScale(float scale) {
-        this.scale = scale;
-    }
-
     public boolean hasCollision() {
         return collision;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
     }
 
     public void setCollision(boolean collision) {
         this.collision = collision;
     }
 
-    public boolean collideWith(Vector3f colliding) {
-        for (var bound : bounds) {
-            if (bound.intersect(colliding)) {
-                return true;
-            }
-        }
-
-        return false;
+    public boolean collidesWith(Vector3f colliding) {
+        return Arrays.stream(bounds).anyMatch(bound -> bound.intersects(colliding));
     }
 
     public void setPosition(float x, float y, float z) {
-        position.x = x;
-        position.y = y;
-        position.z = z;
+        position.set(x, y, z);
+
         for (AABB bound : bounds) {
             bound.setPosition(x, y, z);
         }
     }
 
     public void setRotation(float x, float y, float z) {
-        rotation.x = x;
-        rotation.y = y;
-        rotation.z = z;
+        rotation.set(x, y, z);
     }
 
 }
