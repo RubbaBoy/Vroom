@@ -66,7 +66,7 @@ public final class StaticMeshesLoader {
             }
 
             return meshes;
-        }
+       }
     }
 
     private static void processMaterial(AIMaterial aiMaterial, List<Material> materials, String texturesDir) {
@@ -92,28 +92,28 @@ public final class StaticMeshesLoader {
 
         Vector4f ambient = Material.DEFAULT_COLOR;
 
-        try (AIColor4D colour = AIColor4D.create()) {
-            int result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, aiTextureType_NONE, 0, colour);
-            if (result == 0) {
-                ambient = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
-            }
+        AIColor4D colour = AIColor4D.create();
 
-            Vector4f diffuse = Material.DEFAULT_COLOR;
-            result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, colour);
-            if (result == 0) {
-                diffuse = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
-            }
-
-            Vector4f specular = Material.DEFAULT_COLOR;
-            result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, colour);
-            if (result == 0) {
-                specular = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
-            }
-
-            Material material = new Material(ambient, diffuse, specular, 1.0f);
-            material.setTexture(texture);
-            materials.add(material);
+        int result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, aiTextureType_NONE, 0, colour);
+        if (result == 0) {
+            ambient = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
         }
+
+        Vector4f diffuse = Material.DEFAULT_COLOR;
+        result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, colour);
+        if (result == 0) {
+            diffuse = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
+        }
+
+        Vector4f specular = Material.DEFAULT_COLOR;
+        result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, colour);
+        if (result == 0) {
+            specular = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
+        }
+
+        Material material = new Material(ambient, diffuse, specular, 1.0f);
+        material.setTexture(texture);
+        materials.add(material);
     }
 
     private static Mesh processMesh(AIMesh aiMesh, List<Material> materials) {
