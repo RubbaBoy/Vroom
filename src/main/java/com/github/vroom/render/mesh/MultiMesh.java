@@ -1,7 +1,7 @@
 package com.github.vroom.render.mesh;
 
 import com.github.vroom.render.light.Material;
-import com.github.vroom.render.object.AABB;
+import com.github.vroom.render.object.Collision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,7 @@ public final class MultiMesh {
 
     private final Mesh[] meshes;
 
-    private AABB[][] bounds;
+    private Collision[][] bounds;
 
     public MultiMesh(Mesh... meshes) {
         this(null, meshes);
@@ -28,7 +28,7 @@ public final class MultiMesh {
 
         this.meshes = meshes;
         this.identifier = identifier;
-        this.bounds = Arrays.stream(meshes).map(Mesh::getBounds).toArray(AABB[][]::new);
+        this.bounds = Arrays.stream(meshes).map(Mesh::getBounds).toArray(Collision[][]::new);
     }
 
     public Mesh[] getMeshes() {
@@ -47,7 +47,7 @@ public final class MultiMesh {
         }
     }
 
-    public void setBounds(AABB[][] bounds) {
+    public void setBounds(Collision[][] bounds) {
         if (bounds.length != meshes.length) {
             LOGGER.error("AABB[][] length ({}) does not match the amount of meshes present ({}) in {}", bounds.length,
                     meshes.length, identifier);
@@ -65,18 +65,16 @@ public final class MultiMesh {
         return identifier;
     }
 
-    public AABB[][] getBounds() {
+    public Collision[][] getBounds() {
         return bounds;
     }
 
-    public AABB[][] getCopiedBounds() {
-        var copied = new AABB[meshes.length][];
+    public Collision[][] getCopiedBounds() {
+        return getCopiedBounds(1);
+    }
 
-        for (int i = 0; i < meshes.length; i++) {
-            copied[i] = meshes[i].getCopiedBounds();
-        }
-
-        return copied;
+    public Collision[][] getCopiedBounds(float scale) {
+        return Arrays.stream(meshes).map(mesh -> mesh.getCopiedBounds(scale)).toArray(Collision[][]::new);
     }
 
     public void createTextures() {

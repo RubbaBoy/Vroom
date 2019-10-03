@@ -4,19 +4,12 @@ import com.github.vroom.render.light.Material;
 import com.github.vroom.render.mesh.AABBMesh;
 import com.github.vroom.render.mesh.FiledMesh;
 import com.github.vroom.render.mesh.TexturedMesh;
-import com.github.vroom.render.object.AABB;
-import com.github.vroom.render.object.AABBBox;
+import com.github.vroom.render.object.Collision;
 
 public enum MeshFile implements FiledMesh, TexturedMesh, AABBMesh {
 
-    CUBE("/models/cube.obj", "/textures/grassblock.png", new Material(0.5F),
-        new AABB[] { AABBBox.fromRelative(0, 0, 0, 1, 1, 1) }
-    ),
-
-    PLAYER("/models/player.obj", "/textures", new Material(0.6F),
-        new AABB[] { AABBBox.fromRelative(0, 8, 0, 0, 0, 0, 4, 4, 4) },
-        new AABB[] { AABBBox.fromRelative(0, 0, 0, 0, 0, 0, 3, 3, 8) }
-    );
+    CUBE("/models/cube.obj", "/textures/grassblock.png", new Material(0.5F), true),
+    PLAYER("/models/player.obj", "/textures", new Material(0.6F), true);
 
     private final String relativePath;
 
@@ -24,13 +17,24 @@ public enum MeshFile implements FiledMesh, TexturedMesh, AABBMesh {
 
     private final Material material;
 
-    private final AABB[][] aabbs;
+    private final Collision[][] collisions;
 
-    MeshFile(String relativePath, String texturePath, Material material, AABB[]... aabbs) {
+    private boolean autoComputeAABB;
+
+    MeshFile(String relativePath, String texturePath, Material material, boolean autoComputeAABB) {
+        this(relativePath, texturePath, material, autoComputeAABB, new Collision[0]);
+    }
+
+    MeshFile(String relativePath, String texturePath, Material material, Collision[]... collisions) {
+        this(relativePath, texturePath, material, false, collisions);
+    }
+
+    MeshFile(String relativePath, String texturePath, Material material, boolean autoComputeAABB, Collision[]... collisions) {
         this.relativePath = relativePath;
         this.texturePath = texturePath;
         this.material = material;
-        this.aabbs = aabbs;
+        this.autoComputeAABB = autoComputeAABB;
+        this.collisions = collisions;
     }
 
     @Override
@@ -49,7 +53,13 @@ public enum MeshFile implements FiledMesh, TexturedMesh, AABBMesh {
     }
 
     @Override
-    public AABB[][] getAABBs() {
-        return aabbs;
+    public Collision[][] getAABBs() {
+        return collisions;
     }
+
+    @Override
+    public boolean autoComputeAABB() {
+        return autoComputeAABB;
+    }
+
 }

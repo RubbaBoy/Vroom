@@ -35,12 +35,12 @@ import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
 
 public final class StaticMeshesLoader {
 
-    public static Mesh[] load(String resourcePath, String texturesDir) {
+    public static Mesh[] load(String resourcePath, String texturesDir, boolean autoGenAABB) {
         return load(resourcePath, texturesDir, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate |
-                aiProcess_FixInfacingNormals);
+                aiProcess_FixInfacingNormals, autoGenAABB);
     }
 
-    public static Mesh[] load(String resourcePath, String texturesDir, int flags) {
+    public static Mesh[] load(String resourcePath, String texturesDir, int flags, boolean autoGenAABB) {
         try (AIScene aiScene = aiImportFile(resourcePath, flags)) {
             if (aiScene == null) {
                 throw new RuntimeException("Error loading model: " + aiGetErrorString());
@@ -61,7 +61,7 @@ public final class StaticMeshesLoader {
 
             for (int i = 0; i < numMeshes; i++) {
                 AIMesh aiMesh = AIMesh.create(aiMeshes.get(i));
-                Mesh mesh = processMesh(aiMesh, materials);
+                Mesh mesh = processMesh(aiMesh, materials, autoGenAABB);
                 meshes[i] = mesh;
             }
 
@@ -116,7 +116,7 @@ public final class StaticMeshesLoader {
         materials.add(material);
     }
 
-    private static Mesh processMesh(AIMesh aiMesh, List<Material> materials) {
+    private static Mesh processMesh(AIMesh aiMesh, List<Material> materials, boolean autoGenAABB) {
         var vertices = new ArrayList<Float>();
         var textures = new ArrayList<Float>();
         var normals = new ArrayList<Float>();
@@ -128,7 +128,10 @@ public final class StaticMeshesLoader {
         processIndices(aiMesh, indices);
 
         Mesh mesh = new Mesh(floatListToArray(vertices), floatListToArray(textures), floatListToArray(normals),
-                integerListToArray(indices), false);
+                integerListToArray(indices),
+                false,
+                autoGenAABB
+        );
         Material material;
 
         int materialIdx = aiMesh.mMaterialIndex();

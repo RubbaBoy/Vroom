@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_X;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 public final class Demo {
@@ -87,6 +87,7 @@ public final class Demo {
 
     private static void renderCubes(ObjManager<MeshFile> objManager, Vroom vroom) {
         MultiMesh mesh = objManager.get(MeshFile.CUBE);
+        LOGGER.info("MESH = {}", mesh);
 
         for (int x = 0; x < 5; x++) {
             for (int y = 0; y < 53; y++) {
@@ -100,20 +101,21 @@ public final class Demo {
     }
 
     private static void registerKeyboardListener(Vroom vroom) {
-        vroom.getKeyboardInputManager().addListener(new KeyCombo(GLFW_KEY_A), new KeyListener() {
+        var renderer = vroom.getRenderer();
+        vroom.getKeyboardInputManager().addListener(new KeyCombo(GLFW_KEY_X), new KeyListener() {
             @Override
             public void keyPressed() {
-                LOGGER.info("'A' key pressed!");
+                renderer.setWireframe(!renderer.isWireframe());
             }
 
             @Override
             public void keyReleased() {
-                LOGGER.info("'A' key released!");
+
             }
 
             @Override
             public void keyRepeated() {
-                LOGGER.info("'A' key repeated!");
+
             }
         });
     }
@@ -122,12 +124,12 @@ public final class Demo {
         vroom.getMouseInputMethod().addListener(GLFW_MOUSE_BUTTON_LEFT, new MouseListener() {
             @Override
             public void mousePressed() {
-                LOGGER.info("Left button pressed!");
+
             }
 
             @Override
             public void mouseReleased() {
-                LOGGER.info("Left button released!");
+
             }
         });
     }

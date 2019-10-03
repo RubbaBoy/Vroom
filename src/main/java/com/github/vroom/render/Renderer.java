@@ -17,7 +17,11 @@ import static com.github.vroom.render.light.LightManager.MAX_SPOT_LIGHTS;
 import static com.github.vroom.utility.Utility.loadResource;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_FILL;
+import static org.lwjgl.opengl.GL11.GL_FRONT_AND_BACK;
+import static org.lwjgl.opengl.GL11.GL_LINE;
 import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glPolygonMode;
 import static org.lwjgl.opengl.GL11.glViewport;
 
 public final class Renderer {
@@ -29,6 +33,10 @@ public final class Renderer {
     private static final float Z_FAR = 1000F;
 
     private final Transformation transformation;
+
+    private boolean wireframeOverride;
+
+    private boolean initted = false;
 
     private ShaderProgram shaderProgram;
 
@@ -54,6 +62,12 @@ public final class Renderer {
         shaderProgram.createPointLightListUniform("pointLights", MAX_POINT_LIGHTS);
         shaderProgram.createSpotLightListUniform("spotLights", MAX_SPOT_LIGHTS);
         shaderProgram.createDirectionalLightUniform("directionalLight");
+
+        if (wireframeOverride) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+
+        initted = true;
     }
 
     public void clear() {
@@ -85,6 +99,8 @@ public final class Renderer {
         for (var renderObject : renderObjects) {
             MultiMesh multiMesh = renderObject.getMultiMesh();
             for (Mesh mesh : multiMesh.getMeshes()) {
+                if (!wireframeOverride && mesh.isWireframe()) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
                 // Set model view matrix for this object
                 Matrix4f modelViewMatrix = transformation.getModelViewMatrix(renderObject, viewMatrix);
                 shaderProgram.setUniform("modelViewMatrix", modelViewMatrix);
@@ -94,6 +110,8 @@ public final class Renderer {
 
                 // Render the mesh for this render object
                 mesh.render();
+
+                if (!wireframeOverride && mesh.isWireframe()) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
         }
 
@@ -102,5 +120,20 @@ public final class Renderer {
 
     public void cleanup() {
         shaderProgram.cleanup();
+    }
+
+    public boolean isWireframe() {
+        return wireframeOverride;
+    }
+
+    public void setWireframe(boolean wireframeOverride) {
+        this.wireframeOverride = wireframeOverride;
+        if (initted) {
+            if (wireframeOverride) {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            } else {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            }
+        }
     }
 }

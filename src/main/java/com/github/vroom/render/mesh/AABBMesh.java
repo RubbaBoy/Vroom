@@ -1,9 +1,10 @@
 package com.github.vroom.render.mesh;
 
-import com.github.vroom.render.object.AABB;
+import com.github.vroom.render.object.Collision;
 
 public interface AABBMesh {
 
-    AABB[][] getAABBs();
+    Collision[][] getAABBs();
 
+    boolean autoComputeAABB();
 }

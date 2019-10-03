@@ -1,9 +1,12 @@
 package com.github.vroom.render.mesh;
 
 import com.github.vroom.render.light.Material;
-import com.github.vroom.render.object.AABB;
+import com.github.vroom.render.object.AABBGenerator;
+import com.github.vroom.render.object.Collision;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -36,6 +39,8 @@ import static org.lwjgl.system.MemoryUtil.memFree;
 
 public final class Mesh {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Mesh.class);
+
     private static final Vector3f DEFAULT_COLOR = new Vector3f(1.0f, 1.0f, 1.0f);
 
     private final float[] positions;
@@ -46,9 +51,13 @@ public final class Mesh {
 
     private final int[] indices;
 
+    private final boolean autoGenAABB;
+
     private int vaoId;
 
     private int vertexCount;
+
+    private boolean wireframe;
 
     private Vector3f color;
 
@@ -56,20 +65,25 @@ public final class Mesh {
 
     private List<Integer> vboIdList;
 
-    private AABB[] bounds = new AABB[0];
+    private Collision[] bounds = new Collision[0];
 
-    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
-        this(positions, textCoords, normals, indices, false);
+    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices, boolean autoGenAABB) {
+        this(positions, textCoords, normals, indices, false, autoGenAABB);
     }
 
-    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices, boolean createMesh) {
+    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices, boolean createMesh, boolean autoGenAABB) {
         this.positions = positions;
         this.textCoords = textCoords;
         this.normals = normals;
         this.indices = indices;
+        this.autoGenAABB = autoGenAABB;
 
         if (createMesh) {
             createMesh();
+        }
+
+        if (autoGenAABB) {
+            this.bounds = new Collision[]{AABBGenerator.generateAABB(this)};
         }
     }
 
@@ -204,12 +218,20 @@ public final class Mesh {
         return material;
     }
 
-    public AABB[] getBounds() {
+    public float[] getPositions() {
+        return positions;
+    }
+
+    public Collision[] getBounds() {
         return bounds;
     }
 
-    public AABB[] getCopiedBounds() {
-        return Arrays.stream(bounds).map(AABB::copy).toArray(AABB[]::new);
+    public Collision[] getCopiedBounds() {
+        return getCopiedBounds(1);
+    }
+
+    public Collision[] getCopiedBounds(float scale) {
+        return Arrays.stream(bounds).map(Collision::copy).peek(aabb -> aabb.scale(scale)).toArray(Collision[]::new);
     }
 
     public void setColor(Vector3f color) {
@@ -220,8 +242,16 @@ public final class Mesh {
         this.material = material;
     }
 
-    public void setBounds(AABB[] bounds) {
+    public void setBounds(Collision[] bounds) {
         this.bounds = bounds;
+    }
+
+    public boolean isWireframe() {
+        return wireframe;
+    }
+
+    public void setWireframe(boolean wireframe) {
+        this.wireframe = wireframe;
     }
 }
 

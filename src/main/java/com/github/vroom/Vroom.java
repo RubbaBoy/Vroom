@@ -10,6 +10,8 @@ import com.github.vroom.render.camera.modifiers.CameraDefaultMovementModifier;
 import com.github.vroom.render.camera.modifiers.CameraDefaultRotationModifier;
 import com.github.vroom.render.light.GlobalLightHandler;
 import com.github.vroom.render.light.LightManager;
+import com.github.vroom.render.mesh.Mesh;
+import com.github.vroom.render.mesh.MultiMesh;
 import com.github.vroom.render.obj.ObjManager;
 import com.github.vroom.render.object.RenderObject;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.lwjgl.opengl.GL11.glViewport;
 
@@ -58,6 +61,8 @@ public final class Vroom {
         this.mouseInputMethod = new MouseInputMethod();
         this.keyboardInputManager = new KeyboardInputManager(this);
         this.renderObjects = new ArrayList<>();
+
+        this.camera.movePosition(0, 2, 0);
     }
 
     private void init() {
@@ -125,7 +130,11 @@ public final class Vroom {
         renderer.cleanup();
         keyboardInputManager.cleanup();
         objManager.cleanup();
-//        renderObjects.stream().map(RenderObject::getMesh).forEach(Mesh::cleanup);
+        renderObjects.stream()
+                .map(RenderObject::getMultiMesh)
+                .map(MultiMesh::getMeshes)
+                .flatMap(Stream::of)
+                .forEach(Mesh::cleanup);
     }
 
     private void sync(long loopStartTime) {
@@ -171,5 +180,9 @@ public final class Vroom {
 
     public GlobalLightHandler getGlobalLightHandler() {
         return globalLightHandler;
+    }
+
+    public Renderer getRenderer() {
+        return renderer;
     }
 }

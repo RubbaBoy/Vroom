@@ -13,7 +13,7 @@ public final class RenderObject {
 
     private final Vector3f rotation;
 
-    private final AABB[][] bounds;
+    private Collision[][] bounds;
 
     private boolean collision;
 
@@ -28,7 +28,7 @@ public final class RenderObject {
         this.collision = collision;
         this.position = new Vector3f(0, 0, 0);
         this.rotation = new Vector3f(0, 0, 0);
-        this.bounds = multiMesh.getCopiedBounds();
+        this.bounds = multiMesh.getCopiedBounds(scale);
         this.scale = 1;
     }
 
@@ -53,7 +53,10 @@ public final class RenderObject {
     }
 
     public void setScale(float scale) {
-        this.scale = scale;
+        if (this.scale != scale) {
+            this.bounds = multiMesh.getCopiedBounds(scale);
+            this.scale = scale;
+        }
     }
 
     public void setCollision(boolean collision) {

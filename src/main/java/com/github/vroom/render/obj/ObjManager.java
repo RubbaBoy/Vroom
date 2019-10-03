@@ -34,9 +34,10 @@ public final class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
         processingCallables.add(() -> {
             var objPath = ClasspathUtility.getAbsolutePath(e.getRelativePath());
             var texturePath = ClasspathUtility.getAbsolutePath(e.getTexturePath());
-            var meshes = StaticMeshesLoader.load(objPath, texturePath);
+            var hasMesh = e instanceof AABBMesh;
+            var meshes = StaticMeshesLoader.load(objPath, texturePath, hasMesh && ((AABBMesh) e).autoComputeAABB());
 
-            if (e instanceof AABBMesh) {
+            if (hasMesh && !((AABBMesh) e).autoComputeAABB()) {
                 var aabbs = ((AABBMesh) e).getAABBs();
 
                 if (aabbs.length != meshes.length) {
@@ -50,9 +51,7 @@ public final class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
                 }
             }
 
-            var multiMesh = new MultiMesh(meshes);
-            meshMap.put(e, multiMesh);
-            return multiMesh;
+            return meshMap.compute(e, ($1, $2) -> new MultiMesh(meshes));
         });
 
         return this;
