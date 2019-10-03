@@ -7,21 +7,21 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
-public class MultiMesh {
+public final class MultiMesh {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiMesh.class);
 
-    private final Mesh[] meshes;
+    private final String identifier;
 
-    private String identifier;
+    private final Mesh[] meshes;
 
     private AABB[][] bounds;
 
-    public MultiMesh(Mesh[] meshes) {
-        this(meshes, null);
+    public MultiMesh(Mesh... meshes) {
+        this(null, meshes);
     }
 
-    public MultiMesh(Mesh[] meshes, String identifier) {
+    public MultiMesh(String identifier, Mesh... meshes) {
         if (identifier == null) {
             identifier = "MM-" + hashCode();
         }
@@ -49,11 +49,13 @@ public class MultiMesh {
 
     public void setBounds(AABB[][] bounds) {
         if (bounds.length != meshes.length) {
-            LOGGER.error("AABB[][] length ({}) does not match the amount of meshes present ({}) in {}", bounds.length, meshes.length, identifier);
+            LOGGER.error("AABB[][] length ({}) does not match the amount of meshes present ({}) in {}", bounds.length,
+                    meshes.length, identifier);
             return;
         }
 
         this.bounds = bounds;
+
         for (int i = 0; i < meshes.length; i++) {
             meshes[i].setBounds(bounds[i]);
         }
@@ -69,9 +71,11 @@ public class MultiMesh {
 
     public AABB[][] getCopiedBounds() {
         var copied = new AABB[meshes.length][];
+
         for (int i = 0; i < meshes.length; i++) {
             copied[i] = meshes[i].getCopiedBounds();
         }
+
         return copied;
     }
 

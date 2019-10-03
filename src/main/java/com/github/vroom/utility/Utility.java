@@ -17,7 +17,7 @@ public final class Utility {
         }
     }
 
-    public static float[] listToArray(List<Float> list) {
+    public static float[] floatListToArray(List<Float> list) {
         if (list == null) {
             return new float[0];
         }
@@ -34,7 +34,7 @@ public final class Utility {
         return floatArr;
     }
 
-    public static int[] listIntToArray(List<Integer> list) {
+    public static int[] integerListToArray(List<Integer> list) {
         return list.stream().mapToInt(Integer::intValue).toArray();
     }
 

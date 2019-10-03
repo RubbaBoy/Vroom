@@ -32,7 +32,8 @@ public final class Demo {
         var lightManager = createLightManager();
         var globalLightHandler = createLightHandler(lightManager);
 
-        var vroom = new Vroom(new Window("Demo", 800, 600, true, false), objManager, lightManager, globalLightHandler);
+        var vroom = new Vroom(new Window("Demo", 800, 600, true, false), objManager,
+                lightManager, globalLightHandler);
 
         renderCubes(objManager, vroom);
         createPlayer(vroom, objManager);
@@ -78,8 +79,7 @@ public final class Demo {
 
     private static ObjManager<MeshFile> createObjManager() {
         var objManager = new ObjManager<MeshFile>();
-        objManager
-                .queueObj(MeshFile.CUBE)
+        objManager.queueObj(MeshFile.CUBE)
                 .queueObj(MeshFile.PLAYER)
                 .waitForObjects();
         return objManager;

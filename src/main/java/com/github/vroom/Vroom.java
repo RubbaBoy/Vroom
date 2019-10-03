@@ -69,7 +69,7 @@ public final class Vroom {
         try {
             renderer.init();
         } catch (IOException e) {
-            LOGGER.error("Exception while initializing Renderer!", e);
+            throw new IllegalStateException("Exception while initializing Renderer!", e);
         }
 
         objManager.createMeshes();

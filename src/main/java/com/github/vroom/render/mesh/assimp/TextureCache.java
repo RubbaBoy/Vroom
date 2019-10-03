@@ -5,24 +5,15 @@ import com.github.vroom.render.Texture;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TextureCache {
+public final class TextureCache {
 
-    private static TextureCache INSTANCE;
-
-    private Map<String, Texture> texturesMap;
+    private static final Map<String, Texture> TEXTURE_MAP = new HashMap<>();
 
     private TextureCache() {
-        texturesMap = new HashMap<>();
+        throw new UnsupportedOperationException("This class cannot be instantiated!");
     }
 
-    public static synchronized TextureCache getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new TextureCache();
-        }
-        return INSTANCE;
-    }
-
-    public Texture getTexture(String path) {
-        return texturesMap.computeIfAbsent(path, Texture::new);
+    public static Texture getTexture(String path) {
+        return TEXTURE_MAP.computeIfAbsent(path, Texture::new);
     }
 }

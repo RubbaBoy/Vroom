@@ -17,21 +17,21 @@ public final class LightManager {
     // Match up with "MAX_SPOT_LIGHTS" in fragment.fs
     public static final int MAX_SPOT_LIGHTS = 50;
 
+    private final Vector3f ambientLight;
+
     private final List<PointLight> pointLights;
 
     private final List<SpotLight> spotLights;
 
     private float specularPower;
 
-    private Vector3f ambientLight;
-
     private DirectionalLight directionalLight;
 
     public LightManager() {
         this.pointLights = new ArrayList<>();
         this.spotLights = new ArrayList<>();
-        this.specularPower = 10f;
         this.ambientLight = new Vector3f(0, 0, 0);
+        this.specularPower = 10f;
     }
 
     public void addLight(PointLight pointLight) {
@@ -81,9 +81,7 @@ public final class LightManager {
             Vector4f aux = new Vector4f(lightPos, 1);
             aux.mul(viewMatrix);
 
-            lightPos.x = aux.x;
-            lightPos.y = aux.y;
-            lightPos.z = aux.z;
+            lightPos.set(aux.x(), aux.y(), aux.z());
 
             shaderProgram.setUniform("pointLights", currPointLight, i);
         }
@@ -99,9 +97,7 @@ public final class LightManager {
             Vector4f aux = new Vector4f(lightPos, 1);
             aux.mul(viewMatrix);
 
-            lightPos.x = aux.x;
-            lightPos.y = aux.y;
-            lightPos.z = aux.z;
+            lightPos.set(aux.x(), aux.y(), aux.z());
 
             shaderProgram.setUniform("spotLights", currSpotLight, i);
         }

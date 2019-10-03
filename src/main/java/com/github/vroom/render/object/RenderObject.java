@@ -3,9 +3,9 @@ package com.github.vroom.render.object;
 import com.github.vroom.render.mesh.MultiMesh;
 import org.joml.Vector3f;
 
-public final class RenderObject {
+import java.util.Arrays;
 
-    private float scale;
+public final class RenderObject {
 
     private final MultiMesh multiMesh;
 
@@ -17,17 +17,19 @@ public final class RenderObject {
 
     private boolean collision;
 
+    private float scale;
+
     public RenderObject(MultiMesh multiMesh) {
         this(multiMesh, multiMesh.getBounds().length > 0);
     }
 
     public RenderObject(MultiMesh multiMesh, boolean collision) {
-        this.scale = 1;
         this.multiMesh = multiMesh;
         this.collision = collision;
         this.position = new Vector3f(0, 0, 0);
         this.rotation = new Vector3f(0, 0, 0);
         this.bounds = multiMesh.getCopiedBounds();
+        this.scale = 1;
     }
 
     public float getScale() {
@@ -59,26 +61,12 @@ public final class RenderObject {
     }
 
     public boolean collidesWith(Vector3f colliding) {
-        // This method is not done with streams, with the fear being that any overhead could cause performance
-        // degradations, as this method will be invoked a LOT.
-        for (AABB[] bound2D : bounds) {
-            for (var bound : bound2D) {
-                if (bound.intersects(colliding)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return Arrays.stream(bounds).flatMap(Arrays::stream).anyMatch(bound -> bound.intersects(colliding));
     }
 
     public void setPosition(float x, float y, float z) {
         position.set(x, y, z);
-
-        for (AABB[] bound2D : bounds) {
-            for (var bound : bound2D) {
-                bound.setPosition(x, y, z);
-            }
-        }
+        Arrays.stream(bounds).flatMap(Arrays::stream).forEach(bound -> bound.setPosition(x, y, z));
     }
 
     public void setRotation(float x, float y, float z) {

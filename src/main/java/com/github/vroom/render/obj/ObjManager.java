@@ -6,18 +6,16 @@ import com.github.vroom.render.mesh.FiledMesh;
 import com.github.vroom.render.mesh.MultiMesh;
 import com.github.vroom.render.mesh.TexturedMesh;
 import com.github.vroom.render.mesh.assimp.StaticMeshesLoader;
+import com.github.vroom.utility.ClasspathUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ForkJoinPool;
-
-import static com.github.vroom.utility.ClasspathUtility.findInClasspath;
 
 public final class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
 
@@ -34,14 +32,16 @@ public final class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
 
     public ObjManager<E> queueObj(E e) {
         processingCallables.add(() -> {
-            var objPath = findInClasspath(e.getRelativePath());
-            var texturePath = findInClasspath(e.getTexturePath());
-            var meshes = StaticMeshesLoader.load(objPath.getAbsolutePath(), texturePath.getAbsolutePath());
+            var objPath = ClasspathUtility.getAbsolutePath(e.getRelativePath());
+            var texturePath = ClasspathUtility.getAbsolutePath(e.getTexturePath());
+            var meshes = StaticMeshesLoader.load(objPath, texturePath);
 
             if (e instanceof AABBMesh) {
                 var aabbs = ((AABBMesh) e).getAABBs();
+
                 if (aabbs.length != meshes.length) {
-                    LOGGER.error("AABB[][] length ({}) does not match the amount of meshes present ({}) in {}", aabbs.length, meshes.length, e.getRelativePath());
+                    LOGGER.error("AABB[][] length ({}) does not match the amount of meshes present ({}) in {}",
+                            aabbs.length, meshes.length, e.getRelativePath());
                     return null; // Should the Callable type be Optional<MultiMesh>?
                 }
 
@@ -71,12 +71,10 @@ public final class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
         meshMap.forEach((e, multiMesh) -> {
             if (multiMesh != null) {
                 var meshes = multiMesh.getMeshes();
+
                 if (meshes.length == 1 && meshes[0].getMaterial().getTexture() == null) {
-                    try {
-                        multiMesh.setMaterial(e.getMaterial().setTexture(new Texture(findInClasspath(e.getTexturePath()).getAbsolutePath())));
-                    } catch (IOException ex) {
-                        LOGGER.error("Error setting material!", ex);
-                    }
+                    multiMesh.setMaterial(e.getMaterial()
+                            .setTexture(new Texture(ClasspathUtility.getAbsolutePath(e.getTexturePath()))));
                 }
 
                 multiMesh.createTextures();

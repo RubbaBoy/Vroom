@@ -51,7 +51,7 @@ public final class DayNightController implements LightController {
             factor = 0;
         }
 
-        directionalLight.setIntensity(factor);
+        directionalLight.setIntensity(factor / 3f);
 
         double angRad = Math.toRadians(lightAngle);
         var direction = directionalLight.getDirection();

@@ -79,8 +79,7 @@ public final class MouseInputMethod {
     }
 
     public void input() {
-        displVec.x = 0;
-        displVec.y = 0;
+        displVec.set(0);
 
         if (previousPos.x > 0 && previousPos.y > 0 && inWindow) {
             double deltax = currentPos.x - previousPos.x;
@@ -98,8 +97,7 @@ public final class MouseInputMethod {
             }
         }
 
-        previousPos.x = currentPos.x;
-        previousPos.y = currentPos.y;
+        previousPos.set(currentPos);
     }
 
     public Vector2f getDisplVec() {
