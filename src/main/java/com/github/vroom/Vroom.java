@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.lwjgl.opengl.GL11.glViewport;
 
@@ -133,7 +133,7 @@ public final class Vroom {
         renderObjects.stream()
                 .map(RenderObject::getMultiMesh)
                 .map(MultiMesh::getMeshes)
-                .flatMap(Stream::of)
+                .flatMap(Arrays::stream)
                 .forEach(Mesh::cleanup);
     }
 

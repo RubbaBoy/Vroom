@@ -5,15 +5,21 @@ import com.github.vroom.render.mesh.Mesh;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class AABBGenerator {
+public final class AABBGenerator {
+
+    private AABBGenerator() {
+        throw new UnsupportedOperationException("This class cannot be instantiated!");
+    }
 
     public static Collision generateAABB(Mesh mesh) {
         var positions = mesh.getPositions();
+
         float minX, minY, minZ, maxX, maxY, maxZ;
         minX = minY = minZ = maxX = maxY = maxZ = Float.MIN_VALUE;
 
         for (int i = 0; i < positions.length; i++) {
             var curr = positions[i];
+
             switch (i % 3) {
                 case 0:
                     minX = min(minX, curr);

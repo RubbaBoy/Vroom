@@ -1,7 +1,7 @@
 package com.github.vroom.render.obj;
 
 import com.github.vroom.render.Texture;
-import com.github.vroom.render.mesh.AABBMesh;
+import com.github.vroom.render.mesh.CollisionMesh;
 import com.github.vroom.render.mesh.FiledMesh;
 import com.github.vroom.render.mesh.MultiMesh;
 import com.github.vroom.render.mesh.TexturedMesh;
@@ -34,11 +34,12 @@ public final class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
         processingCallables.add(() -> {
             var objPath = ClasspathUtility.getAbsolutePath(e.getRelativePath());
             var texturePath = ClasspathUtility.getAbsolutePath(e.getTexturePath());
-            var hasMesh = e instanceof AABBMesh;
-            var meshes = StaticMeshesLoader.load(objPath, texturePath, hasMesh && ((AABBMesh) e).autoComputeAABB());
+            var hasMesh = e instanceof CollisionMesh;
+            var meshes = StaticMeshesLoader.load(objPath, texturePath, hasMesh &&
+                    ((CollisionMesh) e).autoComputeCollision());
 
-            if (hasMesh && !((AABBMesh) e).autoComputeAABB()) {
-                var aabbs = ((AABBMesh) e).getAABBs();
+            if (hasMesh && !((CollisionMesh) e).autoComputeCollision()) {
+                var aabbs = ((CollisionMesh) e).getCollision();
 
                 if (aabbs.length != meshes.length) {
                     LOGGER.error("AABB[][] length ({}) does not match the amount of meshes present ({}) in {}",
@@ -51,7 +52,7 @@ public final class ObjManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
                 }
             }
 
-            return meshMap.compute(e, ($1, $2) -> new MultiMesh(meshes));
+            return meshMap.compute(e, (key, value) -> new MultiMesh(meshes));
         });
 
         return this;

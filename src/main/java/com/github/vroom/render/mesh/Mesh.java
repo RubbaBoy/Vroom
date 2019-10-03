@@ -51,13 +51,11 @@ public final class Mesh {
 
     private final int[] indices;
 
-    private final boolean autoGenAABB;
+    private boolean wireframe;
 
     private int vaoId;
 
     private int vertexCount;
-
-    private boolean wireframe;
 
     private Vector3f color;
 
@@ -67,23 +65,23 @@ public final class Mesh {
 
     private Collision[] bounds = new Collision[0];
 
-    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices, boolean autoGenAABB) {
-        this(positions, textCoords, normals, indices, false, autoGenAABB);
+    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices, boolean autoComputeCollision) {
+        this(positions, textCoords, normals, indices, false, autoComputeCollision);
     }
 
-    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices, boolean createMesh, boolean autoGenAABB) {
+    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices, boolean createMesh,
+                boolean autoComputeCollision) {
         this.positions = positions;
         this.textCoords = textCoords;
         this.normals = normals;
         this.indices = indices;
-        this.autoGenAABB = autoGenAABB;
 
         if (createMesh) {
             createMesh();
         }
 
-        if (autoGenAABB) {
-            this.bounds = new Collision[]{AABBGenerator.generateAABB(this)};
+        if (autoComputeCollision) {
+            this.bounds = new Collision[] { AABBGenerator.generateAABB(this) };
         }
     }
 

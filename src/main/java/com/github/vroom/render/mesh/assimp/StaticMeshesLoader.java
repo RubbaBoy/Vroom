@@ -40,7 +40,7 @@ public final class StaticMeshesLoader {
                 aiProcess_FixInfacingNormals, autoGenAABB);
     }
 
-    public static Mesh[] load(String resourcePath, String texturesDir, int flags, boolean autoGenAABB) {
+    public static Mesh[] load(String resourcePath, String texturesDir, int flags, boolean autoGenCollision) {
         try (AIScene aiScene = aiImportFile(resourcePath, flags)) {
             if (aiScene == null) {
                 throw new RuntimeException("Error loading model: " + aiGetErrorString());
@@ -61,7 +61,7 @@ public final class StaticMeshesLoader {
 
             for (int i = 0; i < numMeshes; i++) {
                 AIMesh aiMesh = AIMesh.create(aiMeshes.get(i));
-                Mesh mesh = processMesh(aiMesh, materials, autoGenAABB);
+                Mesh mesh = processMesh(aiMesh, materials, autoGenCollision);
                 meshes[i] = mesh;
             }
 
@@ -116,7 +116,7 @@ public final class StaticMeshesLoader {
         materials.add(material);
     }
 
-    private static Mesh processMesh(AIMesh aiMesh, List<Material> materials, boolean autoGenAABB) {
+    private static Mesh processMesh(AIMesh aiMesh, List<Material> materials, boolean autoGenCollision) {
         var vertices = new ArrayList<Float>();
         var textures = new ArrayList<Float>();
         var normals = new ArrayList<Float>();
@@ -128,10 +128,7 @@ public final class StaticMeshesLoader {
         processIndices(aiMesh, indices);
 
         Mesh mesh = new Mesh(floatListToArray(vertices), floatListToArray(textures), floatListToArray(normals),
-                integerListToArray(indices),
-                false,
-                autoGenAABB
-        );
+                integerListToArray(indices), false, autoGenCollision);
         Material material;
 
         int materialIdx = aiMesh.mMaterialIndex();

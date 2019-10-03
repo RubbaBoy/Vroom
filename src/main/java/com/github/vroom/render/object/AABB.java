@@ -132,6 +132,7 @@ public final class AABB implements Collision {
     @Override
     public void scale(float scale) {
         var multiplying = (1f / this.scale) * scale;
+
         if (multiplying == 1) {
             return;
         }
@@ -142,6 +143,7 @@ public final class AABB implements Collision {
         maxX *= multiplying;
         maxY *= multiplying;
         maxZ *= multiplying;
+
         this.scale = scale;
     }
 }

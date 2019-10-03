@@ -3,7 +3,6 @@ package com.github.vroom.render;
 import com.github.vroom.render.camera.Camera;
 import com.github.vroom.render.light.LightManager;
 import com.github.vroom.render.mesh.Mesh;
-import com.github.vroom.render.mesh.MultiMesh;
 import com.github.vroom.render.object.RenderObject;
 import com.github.vroom.render.shader.ShaderProgram;
 import com.github.vroom.render.transform.Transformation;
@@ -34,9 +33,9 @@ public final class Renderer {
 
     private final Transformation transformation;
 
-    private boolean wireframeOverride;
+    private boolean initialized;
 
-    private boolean initted = false;
+    private boolean wireframeOverride;
 
     private ShaderProgram shaderProgram;
 
@@ -67,7 +66,7 @@ public final class Renderer {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
 
-        initted = true;
+        initialized = true;
     }
 
     public void clear() {
@@ -97,9 +96,12 @@ public final class Renderer {
         shaderProgram.setUniform("texture_sampler", 0);
 
         for (var renderObject : renderObjects) {
-            MultiMesh multiMesh = renderObject.getMultiMesh();
+            var multiMesh = renderObject.getMultiMesh();
+
             for (Mesh mesh : multiMesh.getMeshes()) {
-                if (!wireframeOverride && mesh.isWireframe()) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                if (!wireframeOverride && mesh.isWireframe()) {
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                }
 
                 // Set model view matrix for this object
                 Matrix4f modelViewMatrix = transformation.getModelViewMatrix(renderObject, viewMatrix);
@@ -111,7 +113,9 @@ public final class Renderer {
                 // Render the mesh for this render object
                 mesh.render();
 
-                if (!wireframeOverride && mesh.isWireframe()) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                if (!wireframeOverride && mesh.isWireframe()) {
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                }
             }
         }
 
@@ -128,7 +132,8 @@ public final class Renderer {
 
     public void setWireframe(boolean wireframeOverride) {
         this.wireframeOverride = wireframeOverride;
-        if (initted) {
+
+        if (initialized) {
             if (wireframeOverride) {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             } else {
