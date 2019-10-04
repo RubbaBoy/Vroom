@@ -1,8 +1,8 @@
 package com.github.vroom.render.light.controller;
 
 import com.github.vroom.Vroom;
-import com.github.vroom.render.light.DirectionalLight;
 import com.github.vroom.render.light.LightManager;
+import com.github.vroom.render.light.directional.DirectionalLight;
 import org.joml.Vector3f;
 
 import java.time.Duration;

@@ -87,6 +87,7 @@ public final class Demo {
 
     private static void renderCubes(ObjManager<MeshFile> objManager, Vroom vroom) {
         MultiMesh mesh = objManager.get(MeshFile.CUBE);
+
         LOGGER.info("MESH = {}", mesh);
 
         for (int x = 0; x < 5; x++) {

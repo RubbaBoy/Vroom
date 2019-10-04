@@ -1,8 +1,8 @@
 package com.github.vroom.render.shader;
 
-import com.github.vroom.render.light.DirectionalLight;
 import com.github.vroom.render.light.Material;
 import com.github.vroom.render.light.SpotLight;
+import com.github.vroom.render.light.directional.DirectionalLight;
 import com.github.vroom.render.light.point.Attenuation;
 import com.github.vroom.render.light.point.PointLight;
 import org.joml.Matrix4f;
@@ -142,6 +142,7 @@ public final class ShaderProgram {
         createUniform(uniformName + ".diffuse");
         createUniform(uniformName + ".specular");
         createUniform(uniformName + ".hasTexture");
+        createUniform(uniformName + ".hasNormalMap");
         createUniform(uniformName + ".reflectance");
     }
 
@@ -168,6 +169,7 @@ public final class ShaderProgram {
         setUniform(uniformName + ".diffuse", material.getDiffuseColor());
         setUniform(uniformName + ".specular", material.getSpecularColor());
         setUniform(uniformName + ".hasTexture", material.isTextured() ? 1 : 0);
+        setUniform(uniformName + ".hasNormalMap", material.hasNormalMap() ? 1 : 0);
         setUniform(uniformName + ".reflectance", material.getReflectance());
     }
 

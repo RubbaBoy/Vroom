@@ -1,5 +1,6 @@
 package com.github.vroom.render.light;
 
+import com.github.vroom.render.light.directional.DirectionalLight;
 import com.github.vroom.render.light.point.PointLight;
 import com.github.vroom.render.shader.ShaderProgram;
 import org.joml.Matrix4f;

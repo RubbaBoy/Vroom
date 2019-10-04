@@ -3,6 +3,7 @@ package com.github.vroom.render.mesh;
 import com.github.vroom.render.light.Material;
 import com.github.vroom.render.object.AABBGenerator;
 import com.github.vroom.render.object.Collision;
+import com.github.vroom.render.object.RenderObject;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
@@ -181,7 +183,7 @@ public final class Mesh {
         glDeleteVertexArrays(vaoId);
     }
 
-    public void render() {
+    private void initRender() {
         var texture = material.getTexture();
 
         if (texture != null) {
@@ -197,15 +199,37 @@ public final class Mesh {
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);
+    }
 
-        glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
-
+    private void endRender() {
         // Restore state
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
         glDisableVertexAttribArray(2);
+
         glBindVertexArray(0);
+
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    public void render() {
+        initRender();
+        glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
+        endRender();
+    }
+
+    public void renderList(List<RenderObject> renderObjects, Consumer<RenderObject> consumer) {
+        initRender();
+
+        for (var renderObject : renderObjects) {
+            // Set up data required by renderObject
+            consumer.accept(renderObject);
+
+            // Render this renderObject
+            glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
+        }
+
+        endRender();
     }
 
     public Vector3f getColor() {

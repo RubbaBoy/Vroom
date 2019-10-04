@@ -111,8 +111,7 @@ public final class StaticMeshesLoader {
             specular = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
         }
 
-        Material material = new Material(ambient, diffuse, specular, 1.0f);
-        material.setTexture(texture);
+        Material material = new Material(ambient, diffuse, specular, texture, 1.0f);
         materials.add(material);
     }
 
