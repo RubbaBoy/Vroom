@@ -1,5 +1,6 @@
 package com.github.vroom.graph;
 
+import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.items.GameItem;
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;

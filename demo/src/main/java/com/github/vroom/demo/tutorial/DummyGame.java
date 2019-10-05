@@ -1,35 +1,41 @@
 package com.github.vroom.demo.tutorial;
 
+import com.github.vroom.graph.mesh.MeshManager;
+import com.github.vroom.input.keyboard.KeyboardInput;
+import com.github.vroom.input.mouse.MouseInput;
+import com.github.vroom.items.SkyBox;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
-import com.github.vroom.IGameLogic;
-import com.github.vroom.MouseInput;
+import com.github.vroom.GameLogic;
 import com.github.vroom.Scene;
 import com.github.vroom.SceneLight;
 import com.github.vroom.Window;
 import com.github.vroom.graph.Camera;
-import com.github.vroom.graph.Mesh;
 import com.github.vroom.graph.Renderer;
 import com.github.vroom.graph.light.PointLight;
 import com.github.vroom.graph.light.direction.DirectionalLight;
 import com.github.vroom.graph.weather.Fog;
 import com.github.vroom.items.GameItem;
-import com.github.vroom.items.SkyBox;
-import com.github.vroom.loaders.assimp.StaticMeshesLoader;
+import org.joml.Vector4f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_X;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_Z;
 
-public class DummyGame implements IGameLogic {
+public class DummyGame implements GameLogic {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummyGame.class);
 
     private static final float MOUSE_SENSITIVITY = 0.2f;
 
@@ -41,6 +47,8 @@ public class DummyGame implements IGameLogic {
 
     private Scene scene;
 
+    private MeshManager<MeshFile> meshManager;
+
     private static final float CAMERA_POS_STEP = 0.40f;
 
     private float angleInc;
@@ -50,8 +58,6 @@ public class DummyGame implements IGameLogic {
     private boolean firstTime;
 
     private boolean sceneChanged;
-
-    private Vector3f pointLightPos;
 
     public DummyGame() {
         renderer = new Renderer();
@@ -63,41 +69,53 @@ public class DummyGame implements IGameLogic {
     }
 
     @Override
-    public void init(Window window) throws Exception {
+    public void init(Window window) {
         renderer.init(window);
 
         scene = new Scene();
 
-        Mesh[] houseMesh = StaticMeshesLoader.load("models/house/house.obj", "models/house");
-        GameItem house = new GameItem(houseMesh);
+        (meshManager = new MeshManager<>())
+                .queueObj(MeshFile.CUBE)
+                .queueObj(MeshFile.PLAYER)
+                .waitForObjects();
 
-        Mesh[] terrainMesh = StaticMeshesLoader.load("models/terrain/terrain.obj", "models/terrain");
-        GameItem terrain = new GameItem(terrainMesh);
-        terrain.setScale(100.0f);
+        meshManager.createMeshes();
 
-        scene.setGameItems(new GameItem[]{house, terrain});
+        var cubes = new ArrayList<GameItem>();
+
+        var mesh = meshManager.get(MeshFile.CUBE);
+        for (int x = 0; x < 5; x++) {
+            for (int y = 0; y < 53; y++) {
+                var renderObject = new GameItem(mesh);
+                renderObject.setScale(0.5F);
+                renderObject.setPosition(x, 0, y);
+                cubes.add(renderObject);
+            }
+        }
+
+        var player = new GameItem(meshManager.get(MeshFile.PLAYER));
+        player.setPosition(0, 1, 0);
+        player.setScale(0.1f);
+        scene.addGameItem(player);
+
+        scene.setGameItems(cubes.toArray(GameItem[]::new));
 
         // Shadows
         scene.setRenderShadows(true);
 
         // Fog
-        Vector3f fogColour = new Vector3f(0.5f, 0.5f, 0.5f);
-        scene.setFog(new Fog(true, fogColour, 0.02f));
+        Vector3f fogColor = new Vector3f(0.5f, 0.5f, 0.5f);
+        scene.setFog(new Fog(false, fogColor, 0.02f));
 
-        // Setup  SkyBox
-        float skyBoxScale = 100.0f;
-        SkyBox skyBox = new SkyBox("models/skybox.obj", new Vector4f(0.65f, 0.65f, 0.65f, 1.0f));
-        skyBox.setScale(skyBoxScale);
+        // Setup SkyBox
+        var skyBox = new SkyBox("models/skybox.obj", "/textures/skybox.png");
+        skyBox.setScale(100.0f);
         scene.setSkyBox(skyBox);
 
         // Setup Lights
         setupLights();
 
-        camera.getPosition().x = -17.0f;
-        camera.getPosition().y =  17.0f;
-        camera.getPosition().z = -30.0f;
-        camera.getRotation().x = 20.0f;
-        camera.getRotation().y = 140.f;
+        camera.setPosition(4, 2, 4);
     }
 
     private void setupLights() {
@@ -106,61 +124,71 @@ public class DummyGame implements IGameLogic {
 
         // Ambient Light
         sceneLight.setAmbientLight(new Vector3f(0.3f, 0.3f, 0.3f));
-        sceneLight.setSkyBoxLight(new Vector3f(1.0f, 1.0f, 1.0f));
+        sceneLight.setSkyBoxLight(new Vector3f(0.5f, 0.5f, 0.5f));
 
         // Directional Light
-        float lightIntensity = 1.0f;
-        Vector3f lightDirection = new Vector3f(0, 1, 1);
-        DirectionalLight directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), lightDirection, lightIntensity);
-        sceneLight.setDirectionalLight(directionalLight);
+        float directionLightIntensity = 0.0f;
+        Vector3f lightDirection = new Vector3f(0, 0, 0);
+        DirectionalLight directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), lightDirection, directionLightIntensity);
+        //sceneLight.setDirectionalLight(directionalLight);
 
-        pointLightPos = new Vector3f(0.0f, 25.0f, 0.0f);
-        Vector3f pointLightColour = new Vector3f(0.0f, 1.0f, 0.0f);
-        PointLight.Attenuation attenuation = new PointLight.Attenuation(1, 0.0f, 0);
-        PointLight pointLight = new PointLight(pointLightColour, pointLightPos, lightIntensity, attenuation);
-        sceneLight.setPointLightList( new PointLight[] {pointLight});
+//        Vector3f pointLightColor = new Vector3f(0.0f, 1.0f, 0.0f);
+//        PointLight.Attenuation attenuation = new PointLight.Attenuation(1, 0.0f, 0);
+//        PointLight pointLight = new PointLight(pointLightColor, pasointLightPos, lightIntensity, attenuation);
+//        sceneLight.setPointLightList( new PointLight[] {pointLight});
+
+        var lightPosition = new Vector3f(2, 2, 5);
+
+        float pointLightIntensity = 1f;
+        var pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, pointLightIntensity);
+        pointLight.setAttenuation(new PointLight.Attenuation(0.2f, 0.2f, 0.2f));
+
+        for (int i = 0; i < 53 / 5; i++) {
+            var clone = new PointLight(pointLight);
+            clone.setPosition(new Vector3f(lightPosition));
+            sceneLight.addLight(clone);
+            lightPosition.z += 5;
+        }
     }
 
     @Override
-    public void input(Window window, MouseInput mouseInput) {
+    public void input(MouseInput mouseInput, KeyboardInput keyboardInput) {
         sceneChanged = false;
+
         cameraInc.set(0, 0, 0);
-        if (window.isKeyPressed(GLFW_KEY_W)) {
+
+        if (keyboardInput.isKeyPressed(GLFW_KEY_W)) {
             sceneChanged = true;
             cameraInc.z = -1;
-        } else if (window.isKeyPressed(GLFW_KEY_S)) {
+        } else if (keyboardInput.isKeyPressed(GLFW_KEY_S)) {
             sceneChanged = true;
             cameraInc.z = 1;
         }
-        if (window.isKeyPressed(GLFW_KEY_A)) {
+
+        if (keyboardInput.isKeyPressed(GLFW_KEY_A)) {
             sceneChanged = true;
             cameraInc.x = -1;
-        } else if (window.isKeyPressed(GLFW_KEY_D)) {
+        } else if (keyboardInput.isKeyPressed(GLFW_KEY_D)) {
             sceneChanged = true;
             cameraInc.x = 1;
         }
-        if (window.isKeyPressed(GLFW_KEY_Z)) {
+
+        if (keyboardInput.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
             sceneChanged = true;
             cameraInc.y = -1;
-        } else if (window.isKeyPressed(GLFW_KEY_X)) {
+        } else if (keyboardInput.isKeyPressed(GLFW_KEY_SPACE)) {
             sceneChanged = true;
             cameraInc.y = 1;
         }
-        if (window.isKeyPressed(GLFW_KEY_LEFT)) {
+
+        if (keyboardInput.isKeyPressed(GLFW_KEY_LEFT)) {
             sceneChanged = true;
             angleInc -= 0.05f;
-        } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
+        } else if (keyboardInput.isKeyPressed(GLFW_KEY_RIGHT)) {
             sceneChanged = true;
             angleInc += 0.05f;
         } else {
             angleInc = 0;
-        }
-        if (window.isKeyPressed(GLFW_KEY_UP)) {
-            sceneChanged = true;
-            pointLightPos.y += 0.5f;
-        } else if (window.isKeyPressed(GLFW_KEY_DOWN)) {
-            sceneChanged = true;
-            pointLightPos.y -= 0.5f;
         }
     }
 
@@ -174,7 +202,7 @@ public class DummyGame implements IGameLogic {
         }
 
         // Update camera position
-        camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP, cameraInc.z * CAMERA_POS_STEP);
+        camera.movePosition(scene, cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP, cameraInc.z * CAMERA_POS_STEP);
 
         lightAngle += angleInc;
 
@@ -187,12 +215,13 @@ public class DummyGame implements IGameLogic {
         float zValue = (float) Math.cos(Math.toRadians(lightAngle));
         float yValue = (float) Math.sin(Math.toRadians(lightAngle));
 
-        Vector3f lightDirection = this.scene.getSceneLight().getDirectionalLight().getDirection();
+        var directionalLight = scene.getSceneLight().getDirectionalLight();
+        if (directionalLight != null) {
+            Vector3f lightDirection = directionalLight.getDirection();
 
-        lightDirection.x = 0;
-        lightDirection.y = yValue;
-        lightDirection.z = zValue;
-        lightDirection.normalize();
+            lightDirection.set(0, yValue, zValue);
+            lightDirection.normalize();
+        }
 
         // Update view matrix
         camera.updateViewMatrix();
@@ -204,13 +233,13 @@ public class DummyGame implements IGameLogic {
             sceneChanged = true;
             firstTime = false;
         }
+
         renderer.render(window, camera, scene, sceneChanged);
     }
 
     @Override
     public void cleanup() {
         renderer.cleanup();
-
         scene.cleanup();
     }
 }

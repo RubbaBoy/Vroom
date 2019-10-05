@@ -3,8 +3,11 @@ package com.github.vroom.sound;
 import org.lwjgl.stb.STBVorbisInfo;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
-import com.github.vroom.Utils;
+import com.github.vroom.utility.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -19,13 +22,15 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class SoundBuffer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SoundBuffer.class);
+
     private final int bufferId;
 
     private ShortBuffer pcm = null;
 
     private ByteBuffer vorbis = null;
 
-    public SoundBuffer(String file) throws Exception {
+    public SoundBuffer(String file) {
         this.bufferId = alGenBuffers();
         try (STBVorbisInfo info = STBVorbisInfo.malloc()) {
             ShortBuffer pcm = readVorbis(file, 32 * 1024, info);
@@ -46,7 +51,7 @@ public class SoundBuffer {
         }
     }
 
-    private ShortBuffer readVorbis(String resource, int bufferSize, STBVorbisInfo info) throws Exception {
+    private ShortBuffer readVorbis(String resource, int bufferSize, STBVorbisInfo info) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             vorbis = Utils.ioResourceToByteBuffer(resource, bufferSize);
             IntBuffer error = stack.mallocInt(1);

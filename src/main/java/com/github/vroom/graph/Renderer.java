@@ -4,6 +4,8 @@ import com.github.vroom.graph.anim.AnimGameItem;
 import com.github.vroom.graph.anim.AnimatedFrame;
 import com.github.vroom.graph.light.PointLight;
 import com.github.vroom.graph.light.direction.DirectionalLight;
+import com.github.vroom.graph.mesh.InstancedMesh;
+import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.graph.particles.IParticleEmitter;
 import com.github.vroom.graph.shadow.ShadowCascade;
 import com.github.vroom.graph.shadow.ShadowRenderer;
@@ -15,7 +17,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import com.github.vroom.Scene;
 import com.github.vroom.SceneLight;
-import com.github.vroom.Utils;
+import com.github.vroom.utility.Utils;
 import com.github.vroom.Window;
 
 import java.util.ArrayList;
@@ -92,7 +94,7 @@ public class Renderer {
         tmpVec = new Vector4f();
     }
 
-    public void init(Window window) throws Exception {
+    public void init(Window window) {
         shadowRenderer.init(window);
         gBuffer = new GBuffer(window);
         sceneBuffer = new SceneBuffer(window);
@@ -104,7 +106,8 @@ public class Renderer {
         setupFogShader();
 
         bufferPassModelMatrix =  new Matrix4f();
-        bufferPassMesh = StaticMeshesLoader.load("models/buffer_pass_mess.obj", "models")[0];
+        bufferPassMesh = StaticMeshesLoader.load("models/buffer_pass_mess.obj", "models",
+                Mesh.GEN_COLLISIONS, true).getFirstMesh();
     }
 
     public void render(Window window, Camera camera, Scene scene, boolean sceneChanged) {
@@ -138,7 +141,7 @@ public class Renderer {
         renderParticles(window, camera, scene);
     }
 
-    private void setupParticlesShader() throws Exception {
+    private void setupParticlesShader() {
         particlesShaderProgram = new ShaderProgram();
         particlesShaderProgram.createVertexShader(Utils.loadResource("/shaders/particles_vertex.vs"));
         particlesShaderProgram.createFragmentShader(Utils.loadResource("/shaders/particles_fragment.fs"));
@@ -152,7 +155,7 @@ public class Renderer {
         particlesShaderProgram.createUniform("numRows");
     }
 
-    private void setupSkyBoxShader() throws Exception {
+    private void setupSkyBoxShader() {
         skyBoxShaderProgram = new ShaderProgram();
         skyBoxShaderProgram.createVertexShader(Utils.loadResource("/shaders/sb_vertex.vs"));
         skyBoxShaderProgram.createFragmentShader(Utils.loadResource("/shaders/sb_fragment.fs"));
@@ -163,14 +166,14 @@ public class Renderer {
         skyBoxShaderProgram.createUniform("modelViewMatrix");
         skyBoxShaderProgram.createUniform("texture_sampler");
         skyBoxShaderProgram.createUniform("ambientLight");
-        skyBoxShaderProgram.createUniform("colour");
+        skyBoxShaderProgram.createUniform("color");
         skyBoxShaderProgram.createUniform("hasTexture");
 
         skyBoxShaderProgram.createUniform("depthsText");
         skyBoxShaderProgram.createUniform("screenSize");
     }
 
-    private void setupGeometryShader() throws Exception {
+    private void setupGeometryShader() {
         gBufferShaderProgram = new ShaderProgram();
         gBufferShaderProgram.createVertexShader(Utils.loadResource("/shaders/gbuffer_vertex.vs"));
         gBufferShaderProgram.createFragmentShader(Utils.loadResource("/shaders/gbuffer_fragment.fs"));
@@ -198,7 +201,7 @@ public class Renderer {
         gBufferShaderProgram.createUniform("renderShadow");
     }
 
-    private void setupDirLightShader() throws Exception {
+    private void setupDirLightShader() {
         dirLightShaderProgram = new ShaderProgram();
         dirLightShaderProgram.createVertexShader(Utils.loadResource("/shaders/light_vertex.vs"));
         dirLightShaderProgram.createFragmentShader(Utils.loadResource("/shaders/dir_light_fragment.fs"));
@@ -219,7 +222,7 @@ public class Renderer {
         dirLightShaderProgram.createDirectionalLightUniform("directionalLight");
     }
 
-    private void setupPointLightShader() throws Exception {
+    private void setupPointLightShader() {
         pointLightShaderProgram = new ShaderProgram();
         pointLightShaderProgram.createVertexShader(Utils.loadResource("/shaders/light_vertex.vs"));
         pointLightShaderProgram.createFragmentShader(Utils.loadResource("/shaders/point_light_fragment.fs"));
@@ -239,7 +242,7 @@ public class Renderer {
         pointLightShaderProgram.createPointLightUniform("pointLight");
     }
 
-    private void setupFogShader() throws Exception {
+    private void setupFogShader() {
         fogShaderProgram = new ShaderProgram();
         fogShaderProgram.createVertexShader(Utils.loadResource("/shaders/light_vertex.vs"));
         fogShaderProgram.createFragmentShader(Utils.loadResource("/shaders/fog_fragment.fs"));
@@ -256,7 +259,7 @@ public class Renderer {
 
         fogShaderProgram.createFogUniform("fog");
         fogShaderProgram.createUniform("ambientLight");
-        fogShaderProgram.createUniform("lightColour");
+        fogShaderProgram.createUniform("lightColor");
         fogShaderProgram.createUniform("lightIntensity");
     }
 
@@ -355,24 +358,23 @@ public class Renderer {
         pointLightShaderProgram.setUniform("normalsText", 3);
         pointLightShaderProgram.setUniform("shadowText", 4);
 
-        pointLightShaderProgram.setUniform("screenSize", (float) gBuffer.getWidth(), (float)gBuffer.getHeight());
+        pointLightShaderProgram.setUniform("screenSize", (float) gBuffer.getWidth(), (float) gBuffer.getHeight());
 
         SceneLight sceneLight = scene.getSceneLight();
-        PointLight[] pointLights = sceneLight.getPointLightList();
-        int numPointLights = pointLights != null ? pointLights.length : 0;
-        for(int i=0; i<numPointLights; i++) {
-            // Get a copy of the point light object and transform its position to view coordinates
-            PointLight currPointLight = new PointLight(pointLights[i]);
+
+        sceneLight.getPointLights().forEach(pointLight -> {
+            var currPointLight = new PointLight(pointLight);
             Vector3f lightPos = currPointLight.getPosition();
+
             tmpVec.set(lightPos, 1);
             tmpVec.mul(viewMatrix);
-            lightPos.x = tmpVec.x;
-            lightPos.y = tmpVec.y;
-            lightPos.z = tmpVec.z;
+
+            lightPos.set(tmpVec.x, tmpVec.y, tmpVec.z);
+
             pointLightShaderProgram.setUniform("pointLight", currPointLight);
 
             bufferPassMesh.render();
-        }
+        });
 
         pointLightShaderProgram.unbind();
     }
@@ -402,7 +404,7 @@ public class Renderer {
         dirLightShaderProgram.setUniform("normalsText", 3);
         dirLightShaderProgram.setUniform("shadowText", 4);
 
-        dirLightShaderProgram.setUniform("screenSize", (float) gBuffer.getWidth(), (float)gBuffer.getHeight());
+        dirLightShaderProgram.setUniform("screenSize", (float) gBuffer.getWidth(), (float) gBuffer.getHeight());
 
         // Ambient light
         SceneLight sceneLight = scene.getSceneLight();
@@ -410,11 +412,16 @@ public class Renderer {
 
         // Directional light
         // Get a copy of the directional light object and transform its position to view coordinates
-        DirectionalLight currDirLight = new DirectionalLight(sceneLight.getDirectionalLight());
-        tmpVec.set(currDirLight.getDirection(), 0);
-        tmpVec.mul(viewMatrix);
-        currDirLight.setDirection(new Vector3f(tmpVec.x, tmpVec.y, tmpVec.z));
-        dirLightShaderProgram.setUniform("directionalLight", currDirLight);
+        if (sceneLight.getDirectionalLight() != null) {
+            DirectionalLight currDirLight = new DirectionalLight(sceneLight.getDirectionalLight());
+
+            tmpVec.set(currDirLight.getDirection(), 0);
+            tmpVec.mul(viewMatrix);
+
+            currDirLight.getDirection().set(tmpVec.x, tmpVec.y, tmpVec.z);
+
+            dirLightShaderProgram.setUniform("directionalLight", currDirLight);
+        }
 
         bufferPassMesh.render();
 
@@ -442,14 +449,17 @@ public class Renderer {
         fogShaderProgram.setUniform("depthText", 1);
         fogShaderProgram.setUniform("sceneText", 2);
 
-        fogShaderProgram.setUniform("screenSize", (float) gBuffer.getWidth(), (float)gBuffer.getHeight());
+        fogShaderProgram.setUniform("screenSize", (float) gBuffer.getWidth(), (float) gBuffer.getHeight());
 
         fogShaderProgram.setUniform("fog", scene.getFog());
         SceneLight sceneLight = scene.getSceneLight();
         fogShaderProgram.setUniform("ambientLight", sceneLight.getAmbientLight());
         DirectionalLight dirLight = sceneLight.getDirectionalLight();
-        fogShaderProgram.setUniform("lightColour", dirLight.getColor());
-        fogShaderProgram.setUniform("lightIntensity", dirLight.getIntensity());
+
+        if (dirLight != null) {
+            fogShaderProgram.setUniform("lightColor", dirLight.getColor());
+            fogShaderProgram.setUniform("lightIntensity", dirLight.getIntensity());
+        }
 
         bufferPassMesh.render();
 
@@ -477,7 +487,7 @@ public class Renderer {
 
         for (int i = 0; i < numEmitters; i++) {
             IParticleEmitter emitter = emitters[i];
-            InstancedMesh mesh = (InstancedMesh) emitter.getBaseParticle().getMesh();
+            InstancedMesh mesh = (InstancedMesh) emitter.getBaseParticle().getMultiMesh().getFirstMesh();
 
             Texture text = mesh.getMaterial().getTexture();
             particlesShaderProgram.setUniform("numCols", text.getNumCols());
@@ -509,11 +519,11 @@ public class Renderer {
             float m32 = viewMatrix.m32();
             viewMatrix.m32(0);
 
-            Mesh mesh = skyBox.getMesh();
+            Mesh mesh = skyBox.getMultiMesh().getFirstMesh();
             Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(skyBox, viewMatrix);
             skyBoxShaderProgram.setUniform("modelViewMatrix", modelViewMatrix);
             skyBoxShaderProgram.setUniform("ambientLight", scene.getSceneLight().getSkyBoxLight());
-            skyBoxShaderProgram.setUniform("colour", mesh.getMaterial().getDiffuseColour());
+            skyBoxShaderProgram.setUniform("color", mesh.getMaterial().getDiffuseColor());
             skyBoxShaderProgram.setUniform("hasTexture", mesh.getMaterial().isTextured() ? 1 : 0);
 
             glActiveTexture(GL_TEXTURE1);
@@ -606,7 +616,7 @@ public class Renderer {
             gBuffer.cleanUp();
         }
         if (bufferPassMesh != null) {
-            bufferPassMesh.cleanUp();
+            bufferPassMesh.cleanup();
         }
     }
 }

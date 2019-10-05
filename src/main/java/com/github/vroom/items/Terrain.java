@@ -2,9 +2,10 @@ package com.github.vroom.items;
 
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
-import com.github.vroom.Utils;
-import com.github.vroom.graph.HeightMapMesh;
+import com.github.vroom.utility.Utils;
+import com.github.vroom.graph.mesh.HeightMapMesh;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -41,7 +42,7 @@ public class Terrain {
      * @param textInc
      * @throws Exception
      */
-    public Terrain(int terrainSize, float scale, float minY, float maxY, String heightMapFile, String textureFile, int textInc) throws Exception {
+    public Terrain(int terrainSize, float scale, float minY, float maxY, String heightMapFile, String textureFile, int textInc) {
         this.terrainSize = terrainSize;
         gameItems = new GameItem[terrainSize * terrainSize];
 

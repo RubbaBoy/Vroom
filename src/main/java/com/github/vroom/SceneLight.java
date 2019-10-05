@@ -5,15 +5,18 @@ import com.github.vroom.graph.light.SpotLight;
 import com.github.vroom.graph.light.direction.DirectionalLight;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SceneLight {
 
     private Vector3f ambientLight;
 
     private Vector3f skyBoxLight;
 
-    private PointLight[] pointLightList;
+    private List<PointLight> pointLightList = new ArrayList<>();
 
-    private SpotLight[] spotLightList;
+    private List<SpotLight> spotLightList = new ArrayList<>();
 
     private DirectionalLight directionalLight;
 
@@ -25,20 +28,20 @@ public class SceneLight {
         this.ambientLight = ambientLight;
     }
 
-    public PointLight[] getPointLightList() {
+    public List<PointLight> getPointLights() {
         return pointLightList;
     }
 
-    public void setPointLightList(PointLight[] pointLightList) {
-        this.pointLightList = pointLightList;
-    }
-
-    public SpotLight[] getSpotLightList() {
+    public List<SpotLight> getSpotLights() {
         return spotLightList;
     }
 
-    public void setSpotLightList(SpotLight[] spotLightList) {
-        this.spotLightList = spotLightList;
+    public void addLight(PointLight pointLight) {
+        pointLightList.add(pointLight);
+    }
+
+    public void addLight(SpotLight spotLight) {
+        spotLightList.add(spotLight);
     }
 
     public DirectionalLight getDirectionalLight() {
@@ -56,5 +59,4 @@ public class SceneLight {
     public void setSkyBoxLight(Vector3f skyBoxLight) {
         this.skyBoxLight = skyBoxLight;
     }
-
 }

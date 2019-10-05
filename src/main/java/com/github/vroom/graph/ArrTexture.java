@@ -27,7 +27,7 @@ public class ArrTexture {
 
     private final int height;
 
-    public ArrTexture(int numTextures, int width, int height, int pixelFormat) throws Exception {
+    public ArrTexture(int numTextures, int width, int height, int pixelFormat) {
         ids = new int[numTextures];
         glGenTextures(ids);
         this.width = width;

@@ -1,18 +1,21 @@
 package com.github.vroom;
 
-import com.github.vroom.graph.InstancedMesh;
-import com.github.vroom.graph.Mesh;
+import com.github.vroom.graph.mesh.InstancedMesh;
+import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.graph.particles.IParticleEmitter;
 import com.github.vroom.graph.weather.Fog;
 import com.github.vroom.items.GameItem;
 import com.github.vroom.items.SkyBox;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Scene {
+
+    private final List<GameItem> gameItems;
 
     private final Map<Mesh, List<GameItem>> meshMap;
 
@@ -29,8 +32,9 @@ public class Scene {
     private IParticleEmitter[] particleEmitters;
 
     public Scene() {
-        meshMap = new HashMap();
-        instancedMeshMap = new HashMap();
+        gameItems = new ArrayList<>();
+        meshMap = new HashMap<>();
+        instancedMeshMap = new HashMap<>();
         fog = Fog.NOFOG;
         renderShadows = true;
     }
@@ -47,40 +51,55 @@ public class Scene {
         return renderShadows;
     }
 
+    /**
+     * This sets the game items that will never be removed, such as terrain and sky box and stuff.
+     *
+     * @param gameItems The game items to add
+     */
     public void setGameItems(GameItem[] gameItems) {
         // Create a map of meshes to speed up rendering
-        int numGameItems = gameItems != null ? gameItems.length : 0;
-        for (int i = 0; i < numGameItems; i++) {
-            GameItem gameItem = gameItems[i];
-            Mesh[] meshes = gameItem.getMeshes();
-            for (Mesh mesh : meshes) {
-                boolean instancedMesh = mesh instanceof InstancedMesh;
-                List<GameItem> list = instancedMesh ? instancedMeshMap.get(mesh) : meshMap.get(mesh);
-                if (list == null) {
-                    list = new ArrayList<>();
-                    if (instancedMesh) {
-                        instancedMeshMap.put((InstancedMesh)mesh, list);
-                    } else {
-                        meshMap.put(mesh, list);
-                    }
-                }
-                list.add(gameItem);
+        Arrays.stream(gameItems).forEach(this::addGameItem);
+    }
+
+    public void addGameItem(GameItem gameItem) {
+        gameItems.add(gameItem);
+        var meshes = gameItem.getMultiMesh().getMeshes();
+
+        for (Mesh mesh : meshes) {
+            boolean instancedMesh = mesh instanceof InstancedMesh;
+
+            List<GameItem> list;
+
+            if (instancedMesh) {
+                list = instancedMeshMap.computeIfAbsent((InstancedMesh) mesh, $ -> new ArrayList<>());
+            } else {
+                list = meshMap.computeIfAbsent(mesh, $ -> new ArrayList<>());
             }
+
+            list.add(gameItem);
         }
     }
 
+    public void removeGameItem(GameItem gameItem) {
+        gameItems.remove(gameItem);
+        Arrays.stream(gameItem.getMultiMesh().getMeshes()).forEach(mesh -> {
+            (mesh instanceof InstancedMesh ? instancedMeshMap : meshMap).get(mesh).remove(gameItem);
+            mesh.cleanup();
+        });
+    }
+
     public void cleanup() {
-        for (Mesh mesh : meshMap.keySet()) {
-            mesh.cleanUp();
-        }
-        for (Mesh mesh : instancedMeshMap.keySet()) {
-            mesh.cleanUp();
-        }
+        gameItems.forEach(GameItem::cleanup);
+
         if (particleEmitters != null) {
             for (IParticleEmitter particleEmitter : particleEmitters) {
                 particleEmitter.cleanup();
             }
         }
+    }
+
+    public List<GameItem> getGameItems() {
+        return gameItems;
     }
 
     public SkyBox getSkyBox() {

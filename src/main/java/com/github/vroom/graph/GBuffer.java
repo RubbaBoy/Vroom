@@ -47,7 +47,7 @@ public class GBuffer {
 
     private int height;
 
-    public GBuffer(Window window) throws Exception {
+    public GBuffer(Window window) {
         // Create G-Buffer
         gBufferId = glGenFramebuffers();
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gBufferId);
@@ -85,7 +85,7 @@ public class GBuffer {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer intBuff = stack.mallocInt(TOTAL_TEXTURES);
-            int values[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5};
+            int[] values = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5};
             for(int i = 0; i < values.length; i++) {
                 intBuff.put(values[i]);
             }

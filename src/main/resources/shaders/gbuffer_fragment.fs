@@ -40,7 +40,7 @@ uniform int renderShadow;
 vec4 diffuseC;
 vec4 speculrC;
 
-void getColour(Material material, vec2 textCoord)
+void getColor(Material material, vec2 textCoord)
 {
     if (material.hasTexture == 1)
     {
@@ -99,18 +99,18 @@ float calcShadow(vec4 position, int idx)
             float textDepth;
             if (idx == 0)
             {
-                textDepth = texture(shadowMap_0, projCoords.xy + vec2(row, col) * inc).r; 
+                textDepth = texture(shadowMap_0, projCoords.xy + vec2(row, col) * inc).r;
             }
             else if (idx == 1)
             {
-                textDepth = texture(shadowMap_1, projCoords.xy + vec2(row, col) * inc).r; 
+                textDepth = texture(shadowMap_1, projCoords.xy + vec2(row, col) * inc).r;
             }
             else
             {
-                textDepth = texture(shadowMap_2, projCoords.xy + vec2(row, col) * inc).r; 
+                textDepth = texture(shadowMap_2, projCoords.xy + vec2(row, col) * inc).r;
             }
-            shadowFactor += projCoords.z - bias > textDepth ? 1.0 : 0.0;        
-        }    
+            shadowFactor += projCoords.z - bias > textDepth ? 1.0 : 0.0;
+        }
     }
     shadowFactor /= 9.0;
 
@@ -120,11 +120,11 @@ float calcShadow(vec4 position, int idx)
     }
 
     return 1 - shadowFactor;
-} 
+}
 
 void main()
 {
-    getColour(material, vs_textcoord);
+    getColor(material, vs_textcoord);
 
     fs_worldpos   = vs_mvVertexPos.xyz;
     fs_diffuse    = diffuseC.xyz;

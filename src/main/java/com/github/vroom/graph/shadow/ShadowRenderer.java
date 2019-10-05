@@ -4,11 +4,11 @@ import com.github.vroom.graph.light.direction.DirectionalLight;
 import org.joml.Matrix4f;
 import com.github.vroom.Scene;
 import com.github.vroom.SceneLight;
-import com.github.vroom.Utils;
+import com.github.vroom.utility.Utils;
 import com.github.vroom.Window;
 import com.github.vroom.graph.Camera;
-import com.github.vroom.graph.InstancedMesh;
-import com.github.vroom.graph.Mesh;
+import com.github.vroom.graph.mesh.InstancedMesh;
+import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.graph.Renderer;
 import com.github.vroom.graph.ShaderProgram;
 import com.github.vroom.graph.Transformation;
@@ -48,7 +48,7 @@ public class ShadowRenderer {
         filteredItems = new ArrayList<>();
     }
 
-    public void init(Window window) throws Exception {
+    public void init(Window window) {
         shadowBuffer = new ShadowBuffer();
         shadowCascades = new ArrayList<>();
 
@@ -70,7 +70,7 @@ public class ShadowRenderer {
         this.shadowBuffer.bindTextures(start);
     }
 
-    private void setupDepthShader() throws Exception {
+    private void setupDepthShader() {
         depthShaderProgram = new ShaderProgram();
         depthShaderProgram.createVertexShader(Utils.loadResource("/shaders/depth_vertex.vs"));
         depthShaderProgram.createFragmentShader(Utils.loadResource("/shaders/depth_fragment.fs"));

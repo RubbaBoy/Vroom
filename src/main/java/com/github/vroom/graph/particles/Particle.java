@@ -1,7 +1,7 @@
 package com.github.vroom.graph.particles;
 
 import org.joml.Vector3f;
-import com.github.vroom.graph.Mesh;
+import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.graph.Texture;
 import com.github.vroom.items.GameItem;
 
@@ -26,12 +26,12 @@ public class Particle extends GameItem {
         this.ttl = ttl;
         this.updateTextureMillis = updateTextureMillis;
         this.currentAnimTimeMillis = 0;
-        Texture texture = this.getMesh().getMaterial().getTexture();
+        Texture texture = getMultiMesh().getFirstMesh().getMaterial().getTexture();
         this.animFrames = texture.getNumCols() * texture.getNumRows();
     }
 
     public Particle(Particle baseParticle) {
-        super(baseParticle.getMesh());
+        super(baseParticle.getMultiMesh().getFirstMesh());
         Vector3f aux = baseParticle.getPosition();
         setPosition(aux.x, aux.y, aux.z);
         setRotation(baseParticle.getRotation());

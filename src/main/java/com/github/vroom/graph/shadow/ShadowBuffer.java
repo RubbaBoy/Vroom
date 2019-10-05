@@ -28,7 +28,7 @@ public class ShadowBuffer {
 
     private final ArrTexture depthMap;
 
-    public ShadowBuffer() throws Exception {
+    public ShadowBuffer() {
         // Create a FBO to render the depth map
         depthMapFBO = glGenFramebuffers();
 
@@ -44,7 +44,7 @@ public class ShadowBuffer {
         glReadBuffer(GL_NONE);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            throw new Exception("Could not create FrameBuffer");
+            throw new RuntimeException("Could not create FrameBuffer");
         }
 
         // Unbind

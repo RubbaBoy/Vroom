@@ -1,8 +1,11 @@
 package com.github.vroom;
 
+import com.github.vroom.input.keyboard.KeyboardInput;
+import com.github.vroom.input.mouse.MouseInput;
+
 public class GameEngine implements Runnable {
 
-    public static final int TARGET_FPS = 75;
+    public static final int TARGET_FPS = 60;
 
     public static final int TARGET_UPS = 60;
 
@@ -10,9 +13,11 @@ public class GameEngine implements Runnable {
 
     private final Timer timer;
 
-    private final IGameLogic gameLogic;
+    private final GameLogic gameLogic;
 
     private final MouseInput mouseInput;
+
+    private final KeyboardInput keyboardInput;
 
     private double lastFps;
 
@@ -20,14 +25,15 @@ public class GameEngine implements Runnable {
 
     private String windowTitle;
 
-    public GameEngine(String windowTitle, boolean vSync, Window.WindowOptions opts, IGameLogic gameLogic) throws Exception {
+    public GameEngine(String windowTitle, boolean vSync, Window.WindowOptions opts, GameLogic gameLogic) {
         this(windowTitle, 0, 0, vSync, opts, gameLogic);
     }
 
-    public GameEngine(String windowTitle, int width, int height, boolean vSync, Window.WindowOptions opts, IGameLogic gameLogic) throws Exception {
+    public GameEngine(String windowTitle, int width, int height, boolean vSync, Window.WindowOptions opts, GameLogic gameLogic) {
         this.windowTitle = windowTitle;
         window = new Window(windowTitle, width, height, vSync, opts);
         mouseInput = new MouseInput();
+        keyboardInput = new KeyboardInput();
         this.gameLogic = gameLogic;
         timer = new Timer();
     }
@@ -44,9 +50,10 @@ public class GameEngine implements Runnable {
         }
     }
 
-    protected void init() throws Exception {
+    protected void init() {
         window.init();
         timer.init();
+        keyboardInput.init(window.getHandle());
         mouseInput.init(window);
         gameLogic.init(window);
         lastFps = timer.getTime();
@@ -58,9 +65,7 @@ public class GameEngine implements Runnable {
         float accumulator = 0f;
         float interval = 1f / TARGET_UPS;
 
-        boolean running = true;
-
-        while (running && !window.windowShouldClose()) {
+        while (!window.windowShouldClose()) {
             elapsedTime = timer.getElapsedTime();
             accumulator += elapsedTime;
 
@@ -73,7 +78,7 @@ public class GameEngine implements Runnable {
 
             render();
 
-            if ( window.isvSync() ) {
+            if (window.isvSync()) {
                 sync();
             }
         }
@@ -96,7 +101,7 @@ public class GameEngine implements Runnable {
 
     protected void input() {
         mouseInput.input(window);
-        gameLogic.input(window, mouseInput);
+        gameLogic.input(mouseInput, keyboardInput);
     }
 
     protected void update(float interval) {
@@ -104,7 +109,7 @@ public class GameEngine implements Runnable {
     }
 
     protected void render() {
-        if ( window.getWindowOptions().showFps && timer.getLastLoopTime() - lastFps > 1 ) {
+        if (window.getWindowOptions().showFps && timer.getLastLoopTime() - lastFps > 1) {
             lastFps = timer.getLastLoopTime();
             window.setWindowTitle(windowTitle + " - " + fps + " FPS");
             fps = 0;

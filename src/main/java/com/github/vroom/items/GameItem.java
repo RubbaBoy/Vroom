@@ -1,14 +1,19 @@
 package com.github.vroom.items;
 
+import com.github.vroom.graph.collision.Collision;
+import com.github.vroom.graph.mesh.MultiMesh;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import com.github.vroom.graph.Mesh;
+import com.github.vroom.graph.mesh.Mesh;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 public class GameItem {
 
-    private boolean selected;
+    private MultiMesh multiMesh;
 
-    private Mesh[] meshes;
+    private boolean selected;
 
     private final Vector3f position;
 
@@ -22,6 +27,10 @@ public class GameItem {
 
     private boolean insideFrustum;
 
+    private boolean collision = true;
+
+    private Collision[][] bounds;
+
     public GameItem() {
         selected = false;
         position = new Vector3f(0, 0, 0);
@@ -30,16 +39,17 @@ public class GameItem {
         textPos = 0;
         insideFrustum = true;
         disableFrustumCulling = false;
+        bounds = new Collision[0][];
     }
 
     public GameItem(Mesh mesh) {
-        this();
-        this.meshes = new Mesh[]{mesh};
+        this(new MultiMesh(mesh));
     }
 
-    public GameItem(Mesh[] meshes) {
+    public GameItem(MultiMesh multiMesh) {
         this();
-        this.meshes = meshes;
+        this.multiMesh = multiMesh;
+        this.bounds = multiMesh.getCopiedBounds(scale);
     }
 
     public Vector3f getPosition() {
@@ -55,9 +65,8 @@ public class GameItem {
     }
 
     public final void setPosition(float x, float y, float z) {
-        this.position.x = x;
-        this.position.y = y;
-        this.position.z = z;
+        position.set(x, y, z);
+        Arrays.stream(bounds).flatMap(Arrays::stream).forEach(bound -> bound.setPosition(x, y, z));
     }
 
     public float getScale() {
@@ -65,7 +74,10 @@ public class GameItem {
     }
 
     public final void setScale(float scale) {
-        this.scale = scale;
+        if (this.scale != scale) {
+            this.bounds = multiMesh.getCopiedBounds(scale);
+            this.scale = scale;
+        }
     }
 
     public Quaternionf getRotation() {
@@ -76,27 +88,16 @@ public class GameItem {
         this.rotation.set(q);
     }
 
-    public Mesh getMesh() {
-        return meshes[0];
+    public void setMultiMesh(MultiMesh multiMesh) {
+        this.multiMesh = multiMesh;
     }
 
-    public Mesh[] getMeshes() {
-        return meshes;
-    }
-
-    public void setMeshes(Mesh[] meshes) {
-        this.meshes = meshes;
-    }
-
-    public void setMesh(Mesh mesh) {
-        this.meshes = new Mesh[]{mesh};
+    public MultiMesh getMultiMesh() {
+        return multiMesh;
     }
 
     public void cleanup() {
-        int numMeshes = this.meshes != null ? this.meshes.length : 0;
-        for (int i = 0; i < numMeshes; i++) {
-            this.meshes[i].cleanUp();
-        }
+        multiMesh.cleanup();
     }
 
     public void setSelected(boolean selected) {
@@ -121,5 +122,37 @@ public class GameItem {
 
     public void setDisableFrustumCulling(boolean disableFrustumCulling) {
         this.disableFrustumCulling = disableFrustumCulling;
+    }
+
+    public boolean hasCollision() {
+        return collision;
+    }
+
+    public void setCollision(boolean collision) {
+        this.collision = collision;
+    }
+
+    public boolean collidesWith(Vector3f colliding) {
+        return Arrays.stream(bounds).flatMap(Arrays::stream).anyMatch(bound -> bound.intersects(colliding));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GameItem gameItem = (GameItem) o;
+        return selected == gameItem.selected &&
+                Float.compare(gameItem.scale, scale) == 0 &&
+                textPos == gameItem.textPos &&
+                disableFrustumCulling == gameItem.disableFrustumCulling &&
+                insideFrustum == gameItem.insideFrustum &&
+                multiMesh.equals(gameItem.multiMesh) &&
+                position.equals(gameItem.position) &&
+                rotation.equals(gameItem.rotation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(multiMesh, selected, position, scale, rotation, textPos, disableFrustumCulling, insideFrustum);
     }
 }

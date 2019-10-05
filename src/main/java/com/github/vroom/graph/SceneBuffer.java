@@ -30,7 +30,7 @@ public class SceneBuffer {
 
     private int textureId;
 
-    public SceneBuffer(Window window) throws Exception {
+    public SceneBuffer(Window window) {
         // Create the buffer
         bufferId = glGenFramebuffers();
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, bufferId);

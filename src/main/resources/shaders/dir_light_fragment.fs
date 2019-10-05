@@ -4,7 +4,7 @@ out vec4 fragColor;
 
 struct DirectionalLight
 {
-    vec3 colour;
+    vec3 color;
     vec3 direction;
     float intensity;
 };
@@ -27,14 +27,14 @@ vec2 getTextCoord()
     return gl_FragCoord.xy / screenSize;
 }
 
-vec4 calcLightColour(vec4 diffuseC, vec4 speculrC, float reflectance, vec3 light_colour, float light_intensity, vec3 position, vec3 to_light_dir, vec3 normal)
+vec4 calcLightColor(vec4 diffuseC, vec4 speculrC, float reflectance, vec3 light_color, float light_intensity, vec3 position, vec3 to_light_dir, vec3 normal)
 {
-    vec4 diffuseColour = vec4(0, 0, 0, 1);
-    vec4 specColour = vec4(0, 0, 0, 1);
+    vec4 diffuseColor = vec4(0, 0, 0, 1);
+    vec4 specColor = vec4(0, 0, 0, 1);
 
     // Diffuse Light
     float diffuseFactor = max(dot(normal, to_light_dir), 0.0);
-    diffuseColour = diffuseC * vec4(light_colour, 1.0) * light_intensity * diffuseFactor;
+    diffuseColor = diffuseC * vec4(light_color, 1.0) * light_intensity * diffuseFactor;
 
     // Specular Light
     vec3 camera_direction = normalize(-position);
@@ -42,14 +42,14 @@ vec4 calcLightColour(vec4 diffuseC, vec4 speculrC, float reflectance, vec3 light
     vec3 reflected_light = normalize(reflect(from_light_dir , normal));
     float specularFactor = max( dot(camera_direction, reflected_light), 0.0);
     specularFactor = pow(specularFactor, specularPower);
-    specColour = speculrC * light_intensity  * specularFactor * reflectance * vec4(light_colour, 1.0);
+    specColor = speculrC * light_intensity  * specularFactor * reflectance * vec4(light_color, 1.0);
 
-    return (diffuseColour + specColour);
+    return (diffuseColor + specColor);
 }
 
 vec4 calcDirectionalLight(vec4 diffuseC, vec4 speculrC, float reflectance, DirectionalLight light, vec3 position, vec3 normal)
 {
-    return calcLightColour(diffuseC, speculrC, reflectance, light.colour, light.intensity, position, normalize(light.direction), normal);
+    return calcLightColor(diffuseC, speculrC, reflectance, light.color, light.intensity, position, normalize(light.direction), normal);
 }
 
 void main()

@@ -1,8 +1,11 @@
 package com.github.vroom.graph;
 
 import org.lwjgl.system.MemoryStack;
-import com.github.vroom.Utils;
+import com.github.vroom.utility.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -31,11 +34,15 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 
 public class Texture {
 
-    private final int id;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Texture.class);
 
-    private final int width;
+    private int id;
 
-    private final int height;
+    private int width;
+
+    private int height;
+
+    private ByteBuffer imageData;
 
     private int numRows = 1;
 
@@ -47,9 +54,8 @@ public class Texture {
      * @param width Width of the texture
      * @param height Height of the texture
      * @param pixelFormat Specifies the format of the pixel data (GL_RGBA, etc.)
-     * @throws Exception
      */
-    public Texture(int width, int height, int pixelFormat) throws Exception {
+    public Texture(int width, int height, int pixelFormat) {
         this.id = glGenTextures();
         this.width = width;
         this.height = height;
@@ -61,17 +67,21 @@ public class Texture {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
-    public Texture(String fileName, int numCols, int numRows) throws Exception {
+    public Texture(String fileName, int numCols, int numRows) {
         this(fileName);
         this.numCols = numCols;
         this.numRows = numRows;
     }
 
-    public Texture(String fileName) throws Exception {
-        this(Utils.ioResourceToByteBuffer(fileName, 1024));
+    public Texture(String fileName) {
+        this.imageData = Utils.ioResourceToByteBuffer(fileName, 1024);
     }
 
     public Texture(ByteBuffer imageData) {
+        this.imageData = imageData;
+    }
+
+    public void createTexture() {
         try (MemoryStack stack = stackPush()) {
             IntBuffer w = stack.mallocInt(1);
             IntBuffer h = stack.mallocInt(1);

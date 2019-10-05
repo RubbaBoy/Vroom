@@ -1,9 +1,9 @@
 package com.github.vroom.graph.shadow;
 
 import com.github.vroom.loaders.assimp.StaticMeshesLoader;
-import com.github.vroom.Utils;
+import com.github.vroom.utility.Utils;
 import com.github.vroom.Window;
-import com.github.vroom.graph.Mesh;
+import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.graph.ShaderProgram;
 
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
@@ -17,11 +17,11 @@ public class ShadowTestRenderer {
 
     private Mesh quadMesh;
 
-    public void init(Window window) throws Exception {
+    public void init(Window window) {
         setupTestShader();
     }
 
-    private void setupTestShader() throws Exception {
+    private void setupTestShader() {
         testShaderProgram = new ShaderProgram();
         testShaderProgram.createVertexShader(Utils.loadResource("/shaders/test_vertex.vs"));
         testShaderProgram.createFragmentShader(Utils.loadResource("/shaders/test_fragment.fs"));
@@ -31,7 +31,7 @@ public class ShadowTestRenderer {
             testShaderProgram.createUniform("texture_sampler[" + i + "]");
         }
 
-        quadMesh = StaticMeshesLoader.load("/models/quad.obj", "")[0];
+        quadMesh = StaticMeshesLoader.load("/models/quad.obj", "", true).getFirstMesh();
     }
 
     public void renderTest(ShadowBuffer shadowMap) {

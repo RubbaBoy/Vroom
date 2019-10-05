@@ -22,12 +22,7 @@ public class TextureCache {
         return INSTANCE;
     }
 
-    public Texture getTexture(String path) throws Exception {
-        Texture texture = texturesMap.get(path);
-        if ( texture == null ) {
-            texture = new Texture(path);
-            texturesMap.put(path, texture);
-        }
-        return texture;
+    public Texture getTexture(String path)  {
+        return texturesMap.computeIfAbsent(path, $ -> new Texture(path));
     }
 }

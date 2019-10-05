@@ -1,5 +1,6 @@
 package com.github.vroom.loaders.assimp;
 
+import com.github.vroom.graph.mesh.MultiMesh;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.lwjgl.PointerBuffer;
@@ -16,9 +17,9 @@ import org.lwjgl.assimp.AIScene;
 import org.lwjgl.assimp.AIVector3D;
 import org.lwjgl.assimp.AIVectorKey;
 import org.lwjgl.assimp.AIVertexWeight;
-import com.github.vroom.Utils;
+import com.github.vroom.utility.Utils;
 import com.github.vroom.graph.Material;
-import com.github.vroom.graph.Mesh;
+import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.graph.anim.AnimGameItem;
 import com.github.vroom.graph.anim.AnimatedFrame;
 import com.github.vroom.graph.anim.Animation;
@@ -64,18 +65,16 @@ public class AnimMeshesLoader extends StaticMeshesLoader {
         }
     }
 
-    public static AnimGameItem loadAnimGameItem(String resourcePath, String texturesDir)
-            throws Exception {
+    public static AnimGameItem loadAnimGameItem(String resourcePath, String texturesDir) {
         return loadAnimGameItem(resourcePath, texturesDir,
                 aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate
                 | aiProcess_FixInfacingNormals | aiProcess_LimitBoneWeights);
     }
 
-    public static AnimGameItem loadAnimGameItem(String resourcePath, String texturesDir, int flags)
-            throws Exception {
+    public static AnimGameItem loadAnimGameItem(String resourcePath, String texturesDir, int flags) {
         AIScene aiScene = aiImportFile(resourcePath, flags);
         if (aiScene == null) {
-            throw new Exception("Error loading model");
+            throw new RuntimeException("Error loading model");
         }
 
         int numMaterials = aiScene.mNumMaterials();
@@ -100,9 +99,8 @@ public class AnimMeshesLoader extends StaticMeshesLoader {
         Matrix4f rootTransfromation = AnimMeshesLoader.toMatrix(aiRootNode.mTransformation());
         Node rootNode = processNodesHierarchy(aiRootNode, null);
         Map<String, Animation> animations = processAnimations(aiScene, boneList, rootNode, rootTransfromation);
-        AnimGameItem item = new AnimGameItem(meshes, animations);
 
-        return item;
+        return new AnimGameItem(new MultiMesh(meshes), animations);
     }
 
     private static List<AnimatedFrame> buildAnimationFrames(List<Bone> boneList, Node rootNode,
@@ -213,7 +211,7 @@ public class AnimMeshesLoader extends StaticMeshesLoader {
 
         Mesh mesh = new Mesh(Utils.listToArray(vertices), Utils.listToArray(textures),
                 Utils.listToArray(normals), Utils.listIntToArray(indices),
-                Utils.listIntToArray(boneIds), Utils.listToArray(weights));
+                Utils.listIntToArray(boneIds), Utils.listToArray(weights), false);
         Material material;
         int materialIdx = aiMesh.mMaterialIndex();
         if (materialIdx >= 0 && materialIdx < materials.size()) {

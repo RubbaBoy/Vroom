@@ -1,5 +1,7 @@
 package com.github.vroom.loaders.assimp;
 
+import com.github.vroom.graph.collision.Collision;
+import com.github.vroom.graph.mesh.MultiMesh;
 import org.joml.Vector4f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.AIColor4D;
@@ -10,14 +12,15 @@ import org.lwjgl.assimp.AIScene;
 import org.lwjgl.assimp.AIString;
 import org.lwjgl.assimp.AIVector3D;
 import org.lwjgl.assimp.Assimp;
-import com.github.vroom.Utils;
+import com.github.vroom.utility.Utils;
 import com.github.vroom.graph.Material;
-import com.github.vroom.graph.Mesh;
+import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.graph.Texture;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_DIFFUSE;
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_SPECULAR;
@@ -33,17 +36,21 @@ import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
 
 public class StaticMeshesLoader {
 
-    public static Mesh[] load(String resourcePath, String texturesDir) throws Exception {
-        return load(resourcePath, texturesDir,
-                aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate
-                        | aiProcess_FixInfacingNormals);
+    public static MultiMesh load(String resourcePath, String texturesDir, boolean createMesh) {
+        return load(resourcePath, texturesDir, Mesh.GEN_COLLISIONS, createMesh);
     }
 
-    public static Mesh[] load(String resourcePath, String texturesDir, int flags) throws Exception {
+    public static MultiMesh load(String resourcePath, String texturesDir, Function<Mesh, Collision[]> collisionComputation, boolean createMesh) {
+        return load(resourcePath, texturesDir,
+                aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate
+                        | aiProcess_FixInfacingNormals, collisionComputation, createMesh);
+    }
+
+    public static MultiMesh load(String resourcePath, String texturesDir, int flags, Function<Mesh, Collision[]> collisionComputation, boolean createMesh) {
         AIScene aiScene = aiImportFile(resourcePath, flags);
 
         if (aiScene == null) {
-            throw new Exception("Error loading model [resourcePath: "  + resourcePath + ", texturesDir:" + texturesDir + "] " + aiGetErrorString());
+            throw new RuntimeException("Error loading model [resourcePath: "  + resourcePath + ", texturesDir:" + texturesDir + "] " + aiGetErrorString());
         }
 
         int numMaterials = aiScene.mNumMaterials();
@@ -59,11 +66,17 @@ public class StaticMeshesLoader {
         Mesh[] meshes = new Mesh[numMeshes];
         for (int i = 0; i < numMeshes; i++) {
             AIMesh aiMesh = AIMesh.create(aiMeshes.get(i));
-            Mesh mesh = processMesh(aiMesh, materials);
+            Mesh mesh = processMesh(aiMesh, materials, collisionComputation);
             meshes[i] = mesh;
         }
 
-        return meshes;
+        var multiMesh = new MultiMesh(meshes);
+
+        if (createMesh) {
+            multiMesh.createMeshes();
+        }
+
+        return multiMesh;
     }
 
     protected static void processIndices(AIMesh aiMesh, List<Integer> indices) {
@@ -79,15 +92,15 @@ public class StaticMeshesLoader {
     }
 
     protected static void processMaterial(AIMaterial aiMaterial, List<Material> materials,
-            String texturesDir) throws Exception {
-        AIColor4D colour = AIColor4D.create();
+            String texturesDir) {
+        AIColor4D color = AIColor4D.create();
 
         AIString path = AIString.calloc();
         Assimp.aiGetMaterialTexture(aiMaterial, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null,
                 null, null, null, null, null);
         String textPath = path.dataString();
         Texture texture = null;
-        if (textPath != null && textPath.length() > 0) {
+        if (textPath.length() > 0) {
             TextureCache textCache = TextureCache.getInstance();
             String textureFile = "";
 			if ( texturesDir != null && texturesDir.length() > 0 ) {
@@ -98,18 +111,18 @@ public class StaticMeshesLoader {
             texture = textCache.getTexture(textureFile);
         }
 
-        Vector4f diffuse = Material.DEFAULT_COLOUR;
+        Vector4f diffuse = Material.DEFAULT_COLOR;
         int result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0,
-                colour);
+                color);
         if (result == 0) {
-            diffuse = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
+            diffuse = new Vector4f(color.r(), color.g(), color.b(), color.a());
         }
 
-        Vector4f specular = Material.DEFAULT_COLOUR;
+        Vector4f specular = Material.DEFAULT_COLOR;
         result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0,
-                colour);
+                color);
         if (result == 0) {
-            specular = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
+            specular = new Vector4f(color.r(), color.g(), color.b(), color.a());
         }
 
         Material material = new Material(diffuse, specular, 1.0f);
@@ -117,7 +130,7 @@ public class StaticMeshesLoader {
         materials.add(material);
     }
 
-    private static Mesh processMesh(AIMesh aiMesh, List<Material> materials) {
+    private static Mesh processMesh(AIMesh aiMesh, List<Material> materials, Function<Mesh, Collision[]> collisionComputation) {
         List<Float> vertices = new ArrayList<>();
         List<Float> textures = new ArrayList<>();
         List<Float> normals = new ArrayList<>();
@@ -129,7 +142,7 @@ public class StaticMeshesLoader {
         processIndices(aiMesh, indices);
 
         Mesh mesh = new Mesh(Utils.listToArray(vertices), Utils.listToArray(textures),
-                Utils.listToArray(normals), Utils.listIntToArray(indices));
+                Utils.listToArray(normals), Utils.listIntToArray(indices), false, collisionComputation);
         Material material;
         int materialIdx = aiMesh.mMaterialIndex();
         if (materialIdx >= 0 && materialIdx < materials.size()) {

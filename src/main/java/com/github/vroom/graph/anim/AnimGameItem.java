@@ -1,6 +1,7 @@
 package com.github.vroom.graph.anim;
 
-import com.github.vroom.graph.Mesh;
+import com.github.vroom.graph.mesh.Mesh;
+import com.github.vroom.graph.mesh.MultiMesh;
 import com.github.vroom.items.GameItem;
 
 import java.util.Map;
@@ -12,8 +13,8 @@ public class AnimGameItem extends GameItem {
 
     private Animation currentAnimation;
 
-    public AnimGameItem(Mesh[] meshes, Map<String, Animation> animations) {
-        super(meshes);
+    public AnimGameItem(MultiMesh multiMesh, Map<String, Animation> animations) {
+        super(multiMesh);
         this.animations = animations;
         Optional<Map.Entry<String, Animation>> entry = animations.entrySet().stream().findFirst();
         currentAnimation = entry.isPresent() ? entry.get().getValue() : null;

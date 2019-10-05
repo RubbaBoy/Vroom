@@ -6,7 +6,7 @@ public class Fog {
 
     private boolean active;
 
-    private Vector3f colour;
+    private Vector3f color;
 
     private float density;
 
@@ -14,12 +14,12 @@ public class Fog {
 
     public Fog() {
         active = false;
-        this.colour = new Vector3f(0, 0, 0);
+        this.color = new Vector3f(0, 0, 0);
         this.density = 0;
     }
 
-    public Fog(boolean active, Vector3f colour, float density) {
-        this.colour = colour;
+    public Fog(boolean active, Vector3f color, float density) {
+        this.color = color;
         this.density = density;
         this.active = active;
     }
@@ -41,15 +41,15 @@ public class Fog {
     /**
      * @return the color
      */
-    public Vector3f getColour() {
-        return colour;
+    public Vector3f getColor() {
+        return color;
     }
 
     /**
-     * @param colour the color to set
+     * @param color the color to set
      */
-    public void setColour(Vector3f colour) {
-        this.colour = colour;
+    public void setColor(Vector3f color) {
+        this.color = color;
     }
 
     /**

@@ -78,7 +78,7 @@ public class Window {
 
     private int height;
 
-    private long windowHandle;
+    private long handle;
 
     private boolean resized;
 
@@ -131,47 +131,41 @@ public class Window {
         }
 
         // Create the window
-        windowHandle = glfwCreateWindow(width, height, title, NULL, NULL);
-        if (windowHandle == NULL) {
+        if ((handle = glfwCreateWindow(width, height, title, NULL, NULL)) == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
-        glfwSetFramebufferSizeCallback(windowHandle, (window, width, height) -> {
+        glfwSetFramebufferSizeCallback(handle, (window, width, height) -> {
             this.width = width;
             this.height = height;
             this.setResized(true);
         });
 
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
-        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
+        glfwSetKeyCallback(handle, (window, key, scancode, action, mods) -> {
             if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
                 glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
             }
         });
 
         if (maximized) {
-            glfwMaximizeWindow(windowHandle);
+            glfwMaximizeWindow(handle);
         } else {
             // Get the resolution of the primary monitor
             GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
             // Center our window
-            glfwSetWindowPos(
-                    windowHandle,
-                    (vidmode.width() - width) / 2,
-                    (vidmode.height() - height) / 2
+            glfwSetWindowPos(handle, (vidmode.width() - width) / 2, (vidmode.height() - height) / 2
             );
         }
 
         // Make the OpenGL context current
-        glfwMakeContextCurrent(windowHandle);
+        glfwMakeContextCurrent(handle);
 
-        if (isvSync()) {
-            // Enable v-sync
-            glfwSwapInterval(1);
-        }
+        // Enable v-sync
+        glfwSwapInterval(isvSync() ? 1 : 0);
 
         // Make the window visible
-        glfwShowWindow(windowHandle);
+        glfwShowWindow(handle);
 
         GL.createCapabilities();
 
@@ -179,6 +173,7 @@ public class Window {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_STENCIL_TEST);
+
         if (opts.showTriangles) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
@@ -198,14 +193,15 @@ public class Window {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_STENCIL_TEST);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         if (opts.cullFace) {
             glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
         }
     }
 
-    public long getWindowHandle() {
-        return windowHandle;
+    public long getHandle() {
+        return handle;
     }
 
     public String getWindowTitle() {
@@ -213,7 +209,7 @@ public class Window {
     }
 
     public void setWindowTitle(String title) {
-        glfwSetWindowTitle(windowHandle, title);
+        glfwSetWindowTitle(handle, title);
     }
 
     public WindowOptions getWindowOptions() {
@@ -238,12 +234,8 @@ public class Window {
         glClearColor(r, g, b, alpha);
     }
 
-    public boolean isKeyPressed(int keyCode) {
-        return glfwGetKey(windowHandle, keyCode) == GLFW_PRESS;
-    }
-
     public boolean windowShouldClose() {
-        return glfwWindowShouldClose(windowHandle);
+        return glfwWindowShouldClose(handle);
     }
 
     public String getTitle() {
@@ -275,7 +267,7 @@ public class Window {
     }
 
     public void update() {
-        glfwSwapBuffers(windowHandle);
+        glfwSwapBuffers(handle);
         glfwPollEvents();
     }
 

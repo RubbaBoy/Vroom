@@ -1,5 +1,8 @@
 package com.github.vroom.graph;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.Font;
@@ -8,6 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
@@ -15,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FontTexture {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FontTexture.class);
 
     private static final String IMAGE_FORMAT = "png";
 
@@ -32,12 +38,16 @@ public class FontTexture {
 
     private int width;
 
-    public FontTexture(Font font, String charSetName) throws Exception {
+    public FontTexture(Font font, String charSetName) {
         this.font = font;
         this.charSetName = charSetName;
         charMap = new HashMap<>();
 
-        buildTexture();
+        try {
+            buildTexture();
+        } catch (IOException e) {
+            LOGGER.error("There was an error loading the font texture!", e);
+        }
     }
 
     public int getWidth() {
@@ -67,7 +77,7 @@ public class FontTexture {
         return result.toString();
     }
 
-    private void buildTexture() throws Exception {
+    private void buildTexture() throws IOException {
         // Get the font metrics for each character for the selected font by using image
         BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2D = img.createGraphics();
