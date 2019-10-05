@@ -46,7 +46,6 @@ public final class AABBGenerator {
             }
         }
 
-        LOGGER.info("AABB: ({}, {}, {}) to ({}, {}, {})", minX, minY, minZ, maxX, maxY, maxZ);
         return AABB.fromMaxMin(minX, minY, minZ, maxX, maxY, maxZ);
     }
 }

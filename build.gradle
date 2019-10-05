@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
     id 'java'
 }
@@ -8,7 +10,14 @@ version '1.0.0'
 sourceCompatibility = 11
 
 project.ext.lwjglVersion = "3.2.3"
-project.ext.lwjglNatives = "natives-windows"
+
+if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    project.ext.lwjglNatives = "natives-windows"
+} else if (Os.isFamily(Os.FAMILY_MAC)) {
+    project.ext.lwjglNatives = "natives-macos"
+} else if (Os.isFamily(Os.FAMILY_UNIX)) {
+    project.ext.lwjglNatives = "natives-linux"
+}
 
 repositories {
     mavenCentral()

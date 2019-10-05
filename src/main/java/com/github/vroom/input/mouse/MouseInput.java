@@ -3,6 +3,8 @@ package com.github.vroom.input.mouse;
 import com.github.vroom.Window;
 import org.joml.Vector2d;
 import org.joml.Vector2f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +20,8 @@ import static org.lwjgl.glfw.GLFW.glfwSetCursorPosCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetMouseButtonCallback;
 
 public class MouseInput {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MouseInput.class);
 
     private final Vector2d previousPos;
 

@@ -102,7 +102,6 @@ public class Mesh {
         }
 
         this.bounds = generateCollisions.apply(this);
-        LOGGER.info("Bounds: {}", (Object[]) bounds);
     }
 
     public void createMesh() {
