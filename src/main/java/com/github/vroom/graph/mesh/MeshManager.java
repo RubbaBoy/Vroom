@@ -31,7 +31,7 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
             var resourcePath = ClasspathUtility.getAbsolutePath(e.getRelativePath());
             var texturePath = ClasspathUtility.getAbsolutePath(e.getTexturePath());
 
-            LOGGER.debug("Queueing mesh [resource={}, texture={}]", resourcePath, texturePath);
+            LOGGER.info("Queueing mesh [resource={}, texture={}]", resourcePath, texturePath);
 
             MultiMesh multiMesh;
 
