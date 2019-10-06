@@ -26,10 +26,12 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
         this.processingCallables = new ArrayList<>();
     }
 
-    public MeshManager<E> queueObj(E e) {
+    public MeshManager<E> queue(E e) {
         processingCallables.add(() -> {
-            var objPath = ClasspathUtility.getAbsolutePath(e.getRelativePath());
+            var resourcePath = ClasspathUtility.getAbsolutePath(e.getRelativePath());
             var texturePath = ClasspathUtility.getAbsolutePath(e.getTexturePath());
+
+            LOGGER.debug("Queueing mesh [resource={}, texture={}]", resourcePath, texturePath);
 
             MultiMesh multiMesh;
 
@@ -37,13 +39,9 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
                 var collisionMesh = (CollisionMesh) e;
                 var collisionComputation = collisionMesh.getCollisionComputation();
 
-                multiMesh = StaticMeshesLoader.load(objPath, texturePath, collisionComputation, false);
-
-//                if (collisionComputation == null) {
-//                    multiMesh.setBounds(collisionMesh.getCollision());
-//                }
+                multiMesh = StaticMeshesLoader.load(resourcePath, texturePath, collisionComputation, false);
             } else {
-                multiMesh = StaticMeshesLoader.load(objPath, texturePath, false);
+                multiMesh = StaticMeshesLoader.load(resourcePath, texturePath, false);
             }
 
             return meshMap.compute(e, (key, value) -> multiMesh);
@@ -56,12 +54,12 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
         return meshMap.get(e);
     }
 
-    public void waitForObjects() {
+    public void flush() {
         ForkJoinPool.commonPool().invokeAll(processingCallables);
         processingCallables.clear();
     }
 
-    public void createMeshes() {
+    public void create() {
         meshMap.forEach((e, multiMesh) -> {
             if (multiMesh != null) {
                 var meshes = multiMesh.getMeshes();

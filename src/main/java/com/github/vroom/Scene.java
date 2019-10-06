@@ -15,28 +15,29 @@ import java.util.Map;
 
 public class Scene {
 
+    private final SceneLight sceneLight;
+
     private final List<GameItem> gameItems;
 
     private final Map<Mesh, List<GameItem>> meshMap;
 
     private final Map<InstancedMesh, List<GameItem>> instancedMeshMap;
 
-    private SkyBox skyBox;
-
-    private SceneLight sceneLight;
+    private boolean renderShadows;
 
     private Fog fog;
 
-    private boolean renderShadows;
+    private SkyBox skyBox;
 
     private IParticleEmitter[] particleEmitters;
 
     public Scene() {
-        gameItems = new ArrayList<>();
-        meshMap = new HashMap<>();
-        instancedMeshMap = new HashMap<>();
-        fog = Fog.NOFOG;
-        renderShadows = true;
+        this.sceneLight = new SceneLight();
+        this.gameItems = new ArrayList<>();
+        this.meshMap = new HashMap<>();
+        this.instancedMeshMap = new HashMap<>();
+        this.renderShadows = true;
+        this.fog = Fog.NOFOG;
     }
 
     public Map<Mesh, List<GameItem>> getGameMeshes() {
@@ -116,10 +117,6 @@ public class Scene {
 
     public SceneLight getSceneLight() {
         return sceneLight;
-    }
-
-    public void setSceneLight(SceneLight sceneLight) {
-        this.sceneLight = sceneLight;
     }
 
     /**

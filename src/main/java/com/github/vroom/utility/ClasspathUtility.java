@@ -1,5 +1,8 @@
 package com.github.vroom.utility;
 
+import java.io.File;
+import java.net.URISyntaxException;
+
 public final class ClasspathUtility {
 
     private ClasspathUtility() {
@@ -7,7 +10,11 @@ public final class ClasspathUtility {
     }
 
     public static String getAbsolutePath(String relativePath) {
-        return ClasspathUtility.class.getResource(relativePath).getPath().substring(1);
+        try {
+            return new File(ClasspathUtility.class.getResource(relativePath).toURI()).getAbsolutePath();
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException("Unable to get absolute path for relative path: " + relativePath, e);
+        }
     }
 
 }
