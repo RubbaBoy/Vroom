@@ -2,6 +2,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
     id 'java'
+    id 'maven'
 }
 
 group 'com.github.vroom'

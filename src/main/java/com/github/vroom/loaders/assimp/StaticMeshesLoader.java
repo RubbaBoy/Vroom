@@ -1,7 +1,11 @@
 package com.github.vroom.loaders.assimp;
 
+import com.github.vroom.graph.Material;
+import com.github.vroom.graph.Texture;
 import com.github.vroom.graph.collision.Collision;
+import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.graph.mesh.MultiMesh;
+import com.github.vroom.utility.Utility;
 import org.joml.Vector4f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.AIColor4D;
@@ -12,10 +16,6 @@ import org.lwjgl.assimp.AIScene;
 import org.lwjgl.assimp.AIString;
 import org.lwjgl.assimp.AIVector3D;
 import org.lwjgl.assimp.Assimp;
-import com.github.vroom.utility.Utils;
-import com.github.vroom.graph.Material;
-import com.github.vroom.graph.mesh.Mesh;
-import com.github.vroom.graph.Texture;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -141,8 +141,8 @@ public class StaticMeshesLoader {
         processTextCoords(aiMesh, textures);
         processIndices(aiMesh, indices);
 
-        Mesh mesh = new Mesh(Utils.listToArray(vertices), Utils.listToArray(textures),
-                Utils.listToArray(normals), Utils.listIntToArray(indices), false, collisionComputation);
+        Mesh mesh = new Mesh(Utility.listToArray(vertices), Utility.listToArray(textures),
+                Utility.listToArray(normals), Utility.listIntToArray(indices), false, collisionComputation);
         Material material;
         int materialIdx = aiMesh.mMaterialIndex();
         if (materialIdx >= 0 && materialIdx < materials.size()) {

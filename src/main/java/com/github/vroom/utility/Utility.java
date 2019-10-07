@@ -5,10 +5,8 @@ import org.lwjgl.system.MemoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -16,20 +14,15 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-import static org.lwjgl.stb.STBImage.stbi_failure_reason;
+public class Utility {
 
-public class Utils {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Utility.class);
 
     public static String loadResource(String fileName) {
-        try (var stream = Utils.class.getResourceAsStream(fileName)) {
+        try (var stream = Utility.class.getResourceAsStream(fileName)) {
             return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -52,7 +45,7 @@ public class Utils {
 
     public static boolean existsResourceFile(String fileName) {
         boolean result;
-        try (InputStream is = Utils.class.getResourceAsStream(fileName)) {
+        try (InputStream is = Utility.class.getResourceAsStream(fileName)) {
             result = is != null;
         } catch (Exception excp) {
             result = false;
@@ -72,7 +65,7 @@ public class Utils {
                     while (fc.read(buffer) != -1);
                 }
             } else {
-                try (var source = Utils.class.getResourceAsStream(resource);
+                try (var source = Utility.class.getResourceAsStream(resource);
                      ReadableByteChannel rbc = Channels.newChannel(source)) {
                     buffer = MemoryUtil.memAlloc(bufferSize);
 

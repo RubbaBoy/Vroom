@@ -2,8 +2,8 @@ package com.github.vroom.graph.mesh;
 
 import com.github.vroom.graph.Material;
 import com.github.vroom.graph.Texture;
+import com.github.vroom.utility.Utility;
 import org.joml.Vector3f;
-import com.github.vroom.utility.Utils;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -70,9 +70,9 @@ public class HeightMapMesh {
                 }
             }
         }
-        float[] posArr = Utils.listToArray(positions);
+        float[] posArr = Utility.listToArray(positions);
         int[] indicesArr = indices.stream().mapToInt(i -> i).toArray();
-        float[] textCoordsArr = Utils.listToArray(textCoords);
+        float[] textCoordsArr = Utility.listToArray(textCoords);
         float[] normalsArr = calcNormals(posArr, width, height);
         this.mesh = new Mesh(posArr, textCoordsArr, normalsArr, indicesArr, true);
         Material material = new Material(texture, 0.0f);
@@ -170,7 +170,7 @@ public class HeightMapMesh {
                 normals.add(normal.z);
             }
         }
-        return Utils.listToArray(normals);
+        return Utility.listToArray(normals);
     }
 
     private float getHeight(int x, int z, int width, ByteBuffer buffer) {

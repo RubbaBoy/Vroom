@@ -1,11 +1,10 @@
 package com.github.vroom.items;
 
+import com.github.vroom.graph.mesh.HeightMapMesh;
+import com.github.vroom.utility.Utility;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
-import com.github.vroom.utility.Utils;
-import com.github.vroom.graph.mesh.HeightMapMesh;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -52,7 +51,7 @@ public class Terrain {
             IntBuffer avChannels = stack.mallocInt(1);
 
             // Load image data
-            ByteBuffer imageData = Utils.ioResourceToByteBuffer(heightMapFile, 1024);
+            ByteBuffer imageData = Utility.ioResourceToByteBuffer(heightMapFile, 1024);
 
             // Decode texture image into a byte buffer
             ByteBuffer decodedImage = stbi_load_from_memory(imageData, w, h, avChannels, 4);

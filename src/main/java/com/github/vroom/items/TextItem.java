@@ -1,10 +1,10 @@
 package com.github.vroom.items;
 
-import com.github.vroom.graph.mesh.MultiMesh;
-import com.github.vroom.utility.Utils;
 import com.github.vroom.graph.FontTexture;
 import com.github.vroom.graph.Material;
 import com.github.vroom.graph.mesh.Mesh;
+import com.github.vroom.graph.mesh.MultiMesh;
+import com.github.vroom.utility.Utility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,8 +83,8 @@ public class TextItem extends GameItem {
             startx += charInfo.getWidth();
         }
 
-        float[] posArr = Utils.listToArray(positions);
-        float[] textCoordsArr = Utils.listToArray(textCoords);
+        float[] posArr = Utility.listToArray(positions);
+        float[] textCoordsArr = Utility.listToArray(textCoords);
 
         int[] indicesArr = indices.stream().mapToInt(Integer::intValue).toArray();
 

@@ -1,20 +1,20 @@
 package com.github.vroom.graph.shadow;
 
-import com.github.vroom.graph.light.direction.DirectionalLight;
-import org.joml.Matrix4f;
 import com.github.vroom.Scene;
 import com.github.vroom.SceneLight;
-import com.github.vroom.utility.Utils;
 import com.github.vroom.Window;
 import com.github.vroom.graph.Camera;
-import com.github.vroom.graph.mesh.InstancedMesh;
-import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.graph.Renderer;
 import com.github.vroom.graph.ShaderProgram;
 import com.github.vroom.graph.Transformation;
 import com.github.vroom.graph.anim.AnimGameItem;
 import com.github.vroom.graph.anim.AnimatedFrame;
+import com.github.vroom.graph.light.direction.DirectionalLight;
+import com.github.vroom.graph.mesh.InstancedMesh;
+import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.items.GameItem;
+import com.github.vroom.utility.Utility;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,8 +72,8 @@ public class ShadowRenderer {
 
     private void setupDepthShader() {
         depthShaderProgram = new ShaderProgram();
-        depthShaderProgram.createVertexShader(Utils.loadResource("/shaders/depth_vertex.vs"));
-        depthShaderProgram.createFragmentShader(Utils.loadResource("/shaders/depth_fragment.fs"));
+        depthShaderProgram.createVertexShader(Utility.loadResource("/shaders/depth_vertex.vs"));
+        depthShaderProgram.createFragmentShader(Utility.loadResource("/shaders/depth_fragment.fs"));
         depthShaderProgram.link();
 
         depthShaderProgram.createUniform("isInstanced");

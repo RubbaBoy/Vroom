@@ -28,23 +28,28 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
 
     public MeshManager<E> queue(E e) {
         processingCallables.add(() -> {
-            var resourcePath = ClasspathUtility.getAbsolutePath(e.getRelativePath());
-            var texturePath = ClasspathUtility.getAbsolutePath(e.getTexturePath());
+            try {
+                var resourcePath = ClasspathUtility.getAbsolutePath(e.getRelativeUrl());
+                var texturePath = ClasspathUtility.getAbsolutePath(e.getTextureUrl());
 
-            LOGGER.info("Queueing mesh [resource={}, texture={}]", resourcePath, texturePath);
+                LOGGER.info("Queueing mesh [resource={}, texture={}]", resourcePath, texturePath);
 
-            MultiMesh multiMesh;
+                MultiMesh multiMesh;
 
-            if (e instanceof CollisionMesh) {
-                var collisionMesh = (CollisionMesh) e;
-                var collisionComputation = collisionMesh.getCollisionComputation();
+                if (e instanceof CollisionMesh) {
+                    var collisionMesh = (CollisionMesh) e;
+                    var collisionComputation = collisionMesh.getCollisionComputation();
 
-                multiMesh = StaticMeshesLoader.load(resourcePath, texturePath, collisionComputation, false);
-            } else {
-                multiMesh = StaticMeshesLoader.load(resourcePath, texturePath, false);
+                    multiMesh = StaticMeshesLoader.load(resourcePath, texturePath, collisionComputation, false);
+                } else {
+                    multiMesh = StaticMeshesLoader.load(resourcePath, texturePath, false);
+                }
+
+                return meshMap.compute(e, (key, value) -> multiMesh);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+                throw new IllegalStateException(exception);
             }
-
-            return meshMap.compute(e, (key, value) -> multiMesh);
         });
 
         return this;
@@ -65,8 +70,8 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
                 var meshes = multiMesh.getMeshes();
 
                 if (meshes.length == 1 && meshes[0].getMaterial().getTexture() == null) {
-                    multiMesh.setMaterial(e.getMaterial()
-                            .setTexture(new Texture(ClasspathUtility.getAbsolutePath(e.getTexturePath()))));
+                    multiMesh.setMaterial(e.getMaterial().setTexture(
+                            new Texture(ClasspathUtility.getAbsolutePath(e.getTextureUrl()))));
                 }
 
                 multiMesh.createTextures();
@@ -78,5 +83,4 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
     public void cleanup() {
         meshMap.clear();
     }
-
 }

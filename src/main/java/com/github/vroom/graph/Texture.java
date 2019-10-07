@@ -1,11 +1,10 @@
 package com.github.vroom.graph;
 
+import com.github.vroom.utility.Utility;
 import org.lwjgl.system.MemoryStack;
-import com.github.vroom.utility.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -74,7 +73,7 @@ public class Texture {
     }
 
     public Texture(String fileName) {
-        this.imageData = Utils.ioResourceToByteBuffer(fileName, 1024);
+        this.imageData = Utility.ioResourceToByteBuffer(fileName, 1024);
     }
 
     public Texture(ByteBuffer imageData) {

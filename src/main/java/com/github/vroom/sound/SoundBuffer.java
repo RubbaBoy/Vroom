@@ -1,18 +1,21 @@
 package com.github.vroom.sound;
 
+import com.github.vroom.utility.Utility;
 import org.lwjgl.stb.STBVorbisInfo;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
-import com.github.vroom.utility.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import static org.lwjgl.openal.AL10.*;
+import static org.lwjgl.openal.AL10.AL_FORMAT_MONO16;
+import static org.lwjgl.openal.AL10.AL_FORMAT_STEREO16;
+import static org.lwjgl.openal.AL10.alBufferData;
+import static org.lwjgl.openal.AL10.alDeleteBuffers;
+import static org.lwjgl.openal.AL10.alGenBuffers;
 import static org.lwjgl.stb.STBVorbis.stb_vorbis_close;
 import static org.lwjgl.stb.STBVorbis.stb_vorbis_get_info;
 import static org.lwjgl.stb.STBVorbis.stb_vorbis_get_samples_short_interleaved;
@@ -53,7 +56,7 @@ public class SoundBuffer {
 
     private ShortBuffer readVorbis(String resource, int bufferSize, STBVorbisInfo info) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            vorbis = Utils.ioResourceToByteBuffer(resource, bufferSize);
+            vorbis = Utility.ioResourceToByteBuffer(resource, bufferSize);
             IntBuffer error = stack.mallocInt(1);
             long decoder = stb_vorbis_open_memory(vorbis, error, null);
             if (decoder == NULL) {

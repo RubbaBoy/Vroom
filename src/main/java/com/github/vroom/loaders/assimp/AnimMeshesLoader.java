@@ -1,6 +1,12 @@
 package com.github.vroom.loaders.assimp;
 
+import com.github.vroom.graph.Material;
+import com.github.vroom.graph.anim.AnimGameItem;
+import com.github.vroom.graph.anim.AnimatedFrame;
+import com.github.vroom.graph.anim.Animation;
+import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.graph.mesh.MultiMesh;
+import com.github.vroom.utility.Utility;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.lwjgl.PointerBuffer;
@@ -17,12 +23,6 @@ import org.lwjgl.assimp.AIScene;
 import org.lwjgl.assimp.AIVector3D;
 import org.lwjgl.assimp.AIVectorKey;
 import org.lwjgl.assimp.AIVertexWeight;
-import com.github.vroom.utility.Utils;
-import com.github.vroom.graph.Material;
-import com.github.vroom.graph.mesh.Mesh;
-import com.github.vroom.graph.anim.AnimGameItem;
-import com.github.vroom.graph.anim.AnimatedFrame;
-import com.github.vroom.graph.anim.Animation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -209,9 +209,9 @@ public class AnimMeshesLoader extends StaticMeshesLoader {
         processIndices(aiMesh, indices);
         processBones(aiMesh, boneList, boneIds, weights);
 
-        Mesh mesh = new Mesh(Utils.listToArray(vertices), Utils.listToArray(textures),
-                Utils.listToArray(normals), Utils.listIntToArray(indices),
-                Utils.listIntToArray(boneIds), Utils.listToArray(weights), false);
+        Mesh mesh = new Mesh(Utility.listToArray(vertices), Utility.listToArray(textures),
+                Utility.listToArray(normals), Utility.listIntToArray(indices),
+                Utility.listIntToArray(boneIds), Utility.listToArray(weights), false);
         Material material;
         int materialIdx = aiMesh.mMaterialIndex();
         if (materialIdx >= 0 && materialIdx < materials.size()) {

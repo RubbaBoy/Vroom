@@ -1,5 +1,8 @@
 package com.github.vroom.graph;
 
+import com.github.vroom.Scene;
+import com.github.vroom.SceneLight;
+import com.github.vroom.Window;
 import com.github.vroom.graph.anim.AnimGameItem;
 import com.github.vroom.graph.anim.AnimatedFrame;
 import com.github.vroom.graph.light.PointLight;
@@ -12,13 +15,11 @@ import com.github.vroom.graph.shadow.ShadowRenderer;
 import com.github.vroom.items.GameItem;
 import com.github.vroom.items.SkyBox;
 import com.github.vroom.loaders.assimp.StaticMeshesLoader;
+import com.github.vroom.utility.ClasspathUtility;
+import com.github.vroom.utility.Utility;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import com.github.vroom.Scene;
-import com.github.vroom.SceneLight;
-import com.github.vroom.utility.Utils;
-import com.github.vroom.Window;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,6 +99,7 @@ public class Renderer {
         shadowRenderer.init(window);
         gBuffer = new GBuffer(window);
         sceneBuffer = new SceneBuffer(window);
+
         setupSkyBoxShader();
         setupParticlesShader();
         setupGeometryShader();
@@ -106,8 +108,12 @@ public class Renderer {
         setupFogShader();
 
         bufferPassModelMatrix =  new Matrix4f();
-        bufferPassMesh = StaticMeshesLoader.load("models/buffer_pass_mess.obj", "models",
-                Mesh.GEN_COLLISIONS, true).getFirstMesh();
+
+        String resourcePath = ClasspathUtility.getAbsolutePath(getClass()
+                .getResource("/models/buffer_pass_mess.obj"));
+        String texturesDir = ClasspathUtility.getAbsolutePath(getClass().getResource("/models"));
+
+        bufferPassMesh = StaticMeshesLoader.load(resourcePath, texturesDir, true).getFirstMesh();
     }
 
     public void render(Window window, Camera camera, Scene scene, boolean sceneChanged) {
@@ -143,8 +149,8 @@ public class Renderer {
 
     private void setupParticlesShader() {
         particlesShaderProgram = new ShaderProgram();
-        particlesShaderProgram.createVertexShader(Utils.loadResource("/shaders/particles_vertex.vs"));
-        particlesShaderProgram.createFragmentShader(Utils.loadResource("/shaders/particles_fragment.fs"));
+        particlesShaderProgram.createVertexShader(Utility.loadResource("/shaders/particles_vertex.vs"));
+        particlesShaderProgram.createFragmentShader(Utility.loadResource("/shaders/particles_fragment.fs"));
         particlesShaderProgram.link();
 
         particlesShaderProgram.createUniform("viewMatrix");
@@ -157,8 +163,8 @@ public class Renderer {
 
     private void setupSkyBoxShader() {
         skyBoxShaderProgram = new ShaderProgram();
-        skyBoxShaderProgram.createVertexShader(Utils.loadResource("/shaders/sb_vertex.vs"));
-        skyBoxShaderProgram.createFragmentShader(Utils.loadResource("/shaders/sb_fragment.fs"));
+        skyBoxShaderProgram.createVertexShader(Utility.loadResource("/shaders/sb_vertex.vs"));
+        skyBoxShaderProgram.createFragmentShader(Utility.loadResource("/shaders/sb_fragment.fs"));
         skyBoxShaderProgram.link();
 
         // Create uniforms for projection matrix
@@ -175,8 +181,8 @@ public class Renderer {
 
     private void setupGeometryShader() {
         gBufferShaderProgram = new ShaderProgram();
-        gBufferShaderProgram.createVertexShader(Utils.loadResource("/shaders/gbuffer_vertex.vs"));
-        gBufferShaderProgram.createFragmentShader(Utils.loadResource("/shaders/gbuffer_fragment.fs"));
+        gBufferShaderProgram.createVertexShader(Utility.loadResource("/shaders/gbuffer_vertex.vs"));
+        gBufferShaderProgram.createFragmentShader(Utility.loadResource("/shaders/gbuffer_fragment.fs"));
         gBufferShaderProgram.link();
 
         gBufferShaderProgram.createUniform("projectionMatrix");
@@ -203,8 +209,8 @@ public class Renderer {
 
     private void setupDirLightShader() {
         dirLightShaderProgram = new ShaderProgram();
-        dirLightShaderProgram.createVertexShader(Utils.loadResource("/shaders/light_vertex.vs"));
-        dirLightShaderProgram.createFragmentShader(Utils.loadResource("/shaders/dir_light_fragment.fs"));
+        dirLightShaderProgram.createVertexShader(Utility.loadResource("/shaders/light_vertex.vs"));
+        dirLightShaderProgram.createFragmentShader(Utility.loadResource("/shaders/dir_light_fragment.fs"));
         dirLightShaderProgram.link();
 
         dirLightShaderProgram.createUniform("modelMatrix");
@@ -224,8 +230,8 @@ public class Renderer {
 
     private void setupPointLightShader() {
         pointLightShaderProgram = new ShaderProgram();
-        pointLightShaderProgram.createVertexShader(Utils.loadResource("/shaders/light_vertex.vs"));
-        pointLightShaderProgram.createFragmentShader(Utils.loadResource("/shaders/point_light_fragment.fs"));
+        pointLightShaderProgram.createVertexShader(Utility.loadResource("/shaders/light_vertex.vs"));
+        pointLightShaderProgram.createFragmentShader(Utility.loadResource("/shaders/point_light_fragment.fs"));
         pointLightShaderProgram.link();
 
         pointLightShaderProgram.createUniform("modelMatrix");
@@ -244,8 +250,8 @@ public class Renderer {
 
     private void setupFogShader() {
         fogShaderProgram = new ShaderProgram();
-        fogShaderProgram.createVertexShader(Utils.loadResource("/shaders/light_vertex.vs"));
-        fogShaderProgram.createFragmentShader(Utils.loadResource("/shaders/fog_fragment.fs"));
+        fogShaderProgram.createVertexShader(Utility.loadResource("/shaders/light_vertex.vs"));
+        fogShaderProgram.createFragmentShader(Utility.loadResource("/shaders/fog_fragment.fs"));
         fogShaderProgram.link();
 
         fogShaderProgram.createUniform("modelMatrix");

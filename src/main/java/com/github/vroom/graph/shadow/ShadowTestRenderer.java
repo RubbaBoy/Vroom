@@ -1,10 +1,10 @@
 package com.github.vroom.graph.shadow;
 
-import com.github.vroom.loaders.assimp.StaticMeshesLoader;
-import com.github.vroom.utility.Utils;
 import com.github.vroom.Window;
-import com.github.vroom.graph.mesh.Mesh;
 import com.github.vroom.graph.ShaderProgram;
+import com.github.vroom.graph.mesh.Mesh;
+import com.github.vroom.loaders.assimp.StaticMeshesLoader;
+import com.github.vroom.utility.Utility;
 
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glBindTexture;
@@ -23,8 +23,8 @@ public class ShadowTestRenderer {
 
     private void setupTestShader() {
         testShaderProgram = new ShaderProgram();
-        testShaderProgram.createVertexShader(Utils.loadResource("/shaders/test_vertex.vs"));
-        testShaderProgram.createFragmentShader(Utils.loadResource("/shaders/test_fragment.fs"));
+        testShaderProgram.createVertexShader(Utility.loadResource("/shaders/test_vertex.vs"));
+        testShaderProgram.createFragmentShader(Utility.loadResource("/shaders/test_fragment.fs"));
         testShaderProgram.link();
 
         for (int i = 0; i < ShadowRenderer.NUM_CASCADES; i++) {
