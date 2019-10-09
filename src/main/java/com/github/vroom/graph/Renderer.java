@@ -20,10 +20,14 @@ import com.github.vroom.utility.Utility;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -109,11 +113,15 @@ public class Renderer {
 
         bufferPassModelMatrix =  new Matrix4f();
 
-        String resourcePath = ClasspathUtility.getAbsolutePath(getClass()
-                .getResource("/models/buffer_pass_mess.obj"));
-        String texturesDir = ClasspathUtility.getAbsolutePath(getClass().getResource("/models"));
-
-        bufferPassMesh = StaticMeshesLoader.load(resourcePath, texturesDir, true).getFirstMesh();
+        bufferPassMesh = StaticMeshesLoader.loadFromString(
+                "v -1.000000  1.000000 -0.5000000\n" +
+                "v  1.000000  1.000000 -0.5000000\n" +
+                "v -1.000000 -1.000000 -0.5000000\n" +
+                "v  1.000000 -1.000000 -0.5000000\n" +
+                "vn 0.000000 0.000000 1.000000\n" +
+                "f 1//1 3//1 2//1\n" +
+                "f 2//1 3//1 4//1",
+                "textures", true).getFirstMesh();
     }
 
     public void render(Window window, Camera camera, Scene scene, boolean sceneChanged) {

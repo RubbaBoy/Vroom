@@ -16,17 +16,29 @@ import org.lwjgl.assimp.AIScene;
 import org.lwjgl.assimp.AIString;
 import org.lwjgl.assimp.AIVector3D;
 import org.lwjgl.assimp.Assimp;
+import org.lwjgl.system.MemoryUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.IntBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.github.vroom.utility.Utility.loadResource;
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_DIFFUSE;
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_SPECULAR;
 import static org.lwjgl.assimp.Assimp.aiGetErrorString;
 import static org.lwjgl.assimp.Assimp.aiGetMaterialColor;
 import static org.lwjgl.assimp.Assimp.aiImportFile;
+import static org.lwjgl.assimp.Assimp.aiImportFileFromMemory;
 import static org.lwjgl.assimp.Assimp.aiProcess_FixInfacingNormals;
 import static org.lwjgl.assimp.Assimp.aiProcess_GenSmoothNormals;
 import static org.lwjgl.assimp.Assimp.aiProcess_JoinIdenticalVertices;
@@ -36,47 +48,76 @@ import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
 
 public class StaticMeshesLoader {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(StaticMeshesLoader.class);
+
     public static MultiMesh load(String resourcePath, String texturesDir, boolean createMesh) {
         return load(resourcePath, texturesDir, Mesh.GEN_COLLISIONS, createMesh);
     }
 
-    public static MultiMesh load(String resourcePath, String texturesDir, Function<Mesh, Collision[]> collisionComputation, boolean createMesh) {
-        return load(resourcePath, texturesDir,
-                aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate
-                        | aiProcess_FixInfacingNormals, collisionComputation, createMesh);
+    public static MultiMesh load(String resourcePath, String texturesDir,
+                                 Function<Mesh, Collision[]> collisionComputation, boolean createMesh) {
+        try {
+            return loadFromString(Files.readString(Path.of(resourcePath)), texturesDir, collisionComputation, createMesh);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
-    public static MultiMesh load(String resourcePath, String texturesDir, int flags, Function<Mesh, Collision[]> collisionComputation, boolean createMesh) {
-        AIScene aiScene = aiImportFile(resourcePath, flags);
+    public static MultiMesh loadFromString(String fileContents, String texturesDir, boolean createMesh) {
+        return loadFromString(fileContents, texturesDir, Mesh.GEN_COLLISIONS, createMesh);
+    }
 
-        if (aiScene == null) {
-            throw new RuntimeException("Error loading model [resourcePath: "  + resourcePath + ", texturesDir:" + texturesDir + "] " + aiGetErrorString());
+    public static MultiMesh loadFromString(String fileContents, String texturesDir,
+                                           Function<Mesh, Collision[]> collisionComputation, boolean createMesh) {
+            return loadFromString(fileContents, texturesDir,
+                    aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate
+                            | aiProcess_FixInfacingNormals, collisionComputation, createMesh);
+    }
+
+    public static MultiMesh loadFromString(String fileContents, String texturesDir, int flags,
+                                           Function<Mesh, Collision[]> collisionComputation, boolean createMesh) {
+        ByteBuffer buffer = null;
+
+        try {
+            var data = fileContents.getBytes(StandardCharsets.UTF_8);
+
+            buffer = MemoryUtil.memCalloc(data.length).put(data).flip();
+
+            AIScene aiScene = aiImportFileFromMemory(buffer, flags, "");
+
+            if (aiScene == null) {
+                throw new RuntimeException("Error loading model [texturesDir:" + texturesDir + "] " + aiGetErrorString());
+            }
+
+            int numMaterials = aiScene.mNumMaterials();
+            PointerBuffer aiMaterials = aiScene.mMaterials();
+            List<Material> materials = new ArrayList<>();
+            for (int i = 0; i < numMaterials; i++) {
+                AIMaterial aiMaterial = AIMaterial.create(aiMaterials.get(i));
+                processMaterial(aiMaterial, materials, texturesDir);
+            }
+
+            int numMeshes = aiScene.mNumMeshes();
+            PointerBuffer aiMeshes = aiScene.mMeshes();
+            Mesh[] meshes = new Mesh[numMeshes];
+            for (int i = 0; i < numMeshes; i++) {
+                AIMesh aiMesh = AIMesh.create(aiMeshes.get(i));
+                Mesh mesh = processMesh(aiMesh, materials, collisionComputation);
+                meshes[i] = mesh;
+            }
+
+            var multiMesh = new MultiMesh(meshes);
+
+            if (createMesh) {
+                multiMesh.createMeshes();
+            }
+
+            return multiMesh;
+        } finally {
+            if (buffer != null) {
+                MemoryUtil.memFree(buffer);
+            }
         }
-
-        int numMaterials = aiScene.mNumMaterials();
-        PointerBuffer aiMaterials = aiScene.mMaterials();
-        List<Material> materials = new ArrayList<>();
-        for (int i = 0; i < numMaterials; i++) {
-            AIMaterial aiMaterial = AIMaterial.create(aiMaterials.get(i));
-            processMaterial(aiMaterial, materials, texturesDir);
-        }
-
-        int numMeshes = aiScene.mNumMeshes();
-        PointerBuffer aiMeshes = aiScene.mMeshes();
-        Mesh[] meshes = new Mesh[numMeshes];
-        for (int i = 0; i < numMeshes; i++) {
-            AIMesh aiMesh = AIMesh.create(aiMeshes.get(i));
-            Mesh mesh = processMesh(aiMesh, materials, collisionComputation);
-            meshes[i] = mesh;
-        }
-
-        var multiMesh = new MultiMesh(meshes);
-
-        if (createMesh) {
-            multiMesh.createMeshes();
-        }
-
-        return multiMesh;
     }
 
     protected static void processIndices(AIMesh aiMesh, List<Integer> indices) {
