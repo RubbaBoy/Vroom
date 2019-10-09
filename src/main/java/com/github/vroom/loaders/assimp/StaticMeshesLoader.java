@@ -56,11 +56,8 @@ public class StaticMeshesLoader {
 
     public static MultiMesh load(String resourcePath, String texturesDir,
                                  Function<Mesh, Collision[]> collisionComputation, boolean createMesh) {
-        try {
-            return loadFromString(Files.readString(Path.of(resourcePath)), texturesDir, collisionComputation, createMesh);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return load(aiImportFile(resourcePath, aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate
+                    | aiProcess_FixInfacingNormals), texturesDir, collisionComputation, createMesh);
     }
 
     public static MultiMesh loadFromString(String fileContents, String texturesDir, boolean createMesh) {
@@ -69,13 +66,6 @@ public class StaticMeshesLoader {
 
     public static MultiMesh loadFromString(String fileContents, String texturesDir,
                                            Function<Mesh, Collision[]> collisionComputation, boolean createMesh) {
-            return loadFromString(fileContents, texturesDir,
-                    aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate
-                            | aiProcess_FixInfacingNormals, collisionComputation, createMesh);
-    }
-
-    public static MultiMesh loadFromString(String fileContents, String texturesDir, int flags,
-                                           Function<Mesh, Collision[]> collisionComputation, boolean createMesh) {
         ByteBuffer buffer = null;
 
         try {
@@ -83,12 +73,24 @@ public class StaticMeshesLoader {
 
             buffer = MemoryUtil.memCalloc(data.length).put(data).flip();
 
-            AIScene aiScene = aiImportFileFromMemory(buffer, flags, "");
-
-            if (aiScene == null) {
-                throw new RuntimeException("Error loading model [texturesDir:" + texturesDir + "] " + aiGetErrorString());
+            return load(aiImportFileFromMemory(buffer, aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate
+                    | aiProcess_FixInfacingNormals, "obj"), texturesDir, collisionComputation, createMesh);
+        } finally {
+            if (buffer != null) {
+                MemoryUtil.memFree(buffer);
             }
+        }
+    }
 
+    public static MultiMesh load(AIScene aiScene, String texturesDir, Function<Mesh, Collision[]> collisionComputation, boolean createMesh) {
+
+        if (aiScene == null) {
+            throw new RuntimeException("Error loading model [texturesDir:" + texturesDir + "] " + aiGetErrorString());
+        }
+
+        ByteBuffer buffer = null;
+
+        try {
             int numMaterials = aiScene.mNumMaterials();
             PointerBuffer aiMaterials = aiScene.mMaterials();
             List<Material> materials = new ArrayList<>();

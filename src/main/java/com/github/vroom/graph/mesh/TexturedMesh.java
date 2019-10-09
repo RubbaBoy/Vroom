@@ -6,7 +6,7 @@ import java.net.URL;
 
 public interface TexturedMesh {
 
-    URL getTextureUrl();
+    String getTextureUrl();
 
     Material getMaterial();
 

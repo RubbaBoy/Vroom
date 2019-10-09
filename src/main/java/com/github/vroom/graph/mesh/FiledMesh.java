@@ -4,6 +4,6 @@ import java.net.URL;
 
 public interface FiledMesh {
 
-    URL getRelativeUrl();
+    String getRelativeUrl();
 
 }

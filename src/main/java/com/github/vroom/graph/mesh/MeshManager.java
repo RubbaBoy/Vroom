@@ -6,6 +6,7 @@ import com.github.vroom.utility.ClasspathUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -21,6 +22,8 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
 
     private final ConcurrentMap<E, MultiMesh> meshMap;
 
+    private Path parentDirectory;
+
     public MeshManager() {
         this.meshMap = new ConcurrentHashMap<>();
         this.processingCallables = new ArrayList<>();
@@ -29,8 +32,8 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
     public MeshManager<E> queue(E e) {
         processingCallables.add(() -> {
             try {
-                var resourcePath = ClasspathUtility.getAbsolutePath(e.getRelativeUrl());
-                var texturePath = ClasspathUtility.getAbsolutePath(e.getTextureUrl());
+                var resourcePath = parentDirectory.resolve(e.getRelativeUrl()).toString();
+                var texturePath = parentDirectory.resolve(e.getTextureUrl()).toString();
 
                 LOGGER.info("Queueing mesh [resource={}, texture={}]", resourcePath, texturePath);
 
@@ -71,7 +74,7 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
 
                 if (meshes.length == 1 && meshes[0].getMaterial().getTexture() == null) {
                     multiMesh.setMaterial(e.getMaterial().setTexture(
-                            new Texture(ClasspathUtility.getAbsolutePath(e.getTextureUrl()))));
+                            new Texture(parentDirectory.resolve(e.getTextureUrl()).toString())));
                 }
 
                 multiMesh.createTextures();
@@ -82,5 +85,13 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
 
     public void cleanup() {
         meshMap.clear();
+    }
+
+    public Path getParentDirectory() {
+        return parentDirectory;
+    }
+
+    public void setParentDirectory(Path parentDirectory) {
+        this.parentDirectory = parentDirectory;
     }
 }
