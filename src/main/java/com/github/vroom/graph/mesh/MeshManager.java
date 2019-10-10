@@ -2,7 +2,6 @@ package com.github.vroom.graph.mesh;
 
 import com.github.vroom.graph.Texture;
 import com.github.vroom.loaders.assimp.StaticMeshesLoader;
-import com.github.vroom.utility.ClasspathUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,13 +17,14 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MeshManager.class);
 
+    private final Path cacheDirectory;
+
     private final List<Callable<MultiMesh>> processingCallables;
 
     private final ConcurrentMap<E, MultiMesh> meshMap;
 
-    private Path parentDirectory;
-
-    public MeshManager() {
+    public MeshManager(Path cacheDirectory) {
+        this.cacheDirectory = cacheDirectory;
         this.meshMap = new ConcurrentHashMap<>();
         this.processingCallables = new ArrayList<>();
     }
@@ -32,8 +32,8 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
     public MeshManager<E> queue(E e) {
         processingCallables.add(() -> {
             try {
-                var resourcePath = parentDirectory.resolve(e.getRelativeUrl()).toString();
-                var texturePath = parentDirectory.resolve(e.getTextureUrl()).toString();
+                var resourcePath = cacheDirectory.resolve(e.getRelativeUrl()).toString();
+                var texturePath = cacheDirectory.resolve(e.getTextureUrl()).toString();
 
                 LOGGER.info("Queueing mesh [resource={}, texture={}]", resourcePath, texturePath);
 
@@ -74,7 +74,7 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
 
                 if (meshes.length == 1 && meshes[0].getMaterial().getTexture() == null) {
                     multiMesh.setMaterial(e.getMaterial().setTexture(
-                            new Texture(parentDirectory.resolve(e.getTextureUrl()).toString())));
+                            new Texture(cacheDirectory.resolve(e.getTextureUrl()).toString())));
                 }
 
                 multiMesh.createTextures();
@@ -85,13 +85,5 @@ public class MeshManager<E extends Enum<E> & FiledMesh & TexturedMesh> {
 
     public void cleanup() {
         meshMap.clear();
-    }
-
-    public Path getParentDirectory() {
-        return parentDirectory;
-    }
-
-    public void setParentDirectory(Path parentDirectory) {
-        this.parentDirectory = parentDirectory;
     }
 }

@@ -15,19 +15,14 @@ import com.github.vroom.graph.shadow.ShadowRenderer;
 import com.github.vroom.items.GameItem;
 import com.github.vroom.items.SkyBox;
 import com.github.vroom.loaders.assimp.StaticMeshesLoader;
-import com.github.vroom.utility.ClasspathUtility;
 import com.github.vroom.utility.Utility;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -300,17 +295,22 @@ public class Renderer {
         gBufferShaderProgram.setUniform("normalMap", 1);
 
         List<ShadowCascade> shadowCascades = shadowRenderer.getShadowCascades();
+
         for (int i = 0; i < ShadowRenderer.NUM_CASCADES; i++) {
             ShadowCascade shadowCascade = shadowCascades.get(i);
             gBufferShaderProgram.setUniform("orthoProjectionMatrix", shadowCascade.getOrthoProjMatrix(), i);
             gBufferShaderProgram.setUniform("cascadeFarPlanes", ShadowRenderer.CASCADE_SPLITS[i], i);
             gBufferShaderProgram.setUniform("lightViewMatrix", shadowCascade.getLightViewMatrix(), i);
         }
+
         shadowRenderer.bindTextures(GL_TEXTURE2);
+
         int start = 2;
+
         for (int i = 0; i < ShadowRenderer.NUM_CASCADES; i++) {
             gBufferShaderProgram.setUniform("shadowMap_" + i, start + i);
         }
+
         gBufferShaderProgram.setUniform("renderShadow", scene.isRenderShadows() ? 1 : 0);
 
         renderNonInstancedMeshes(scene);
@@ -360,8 +360,10 @@ public class Renderer {
 
         // Bind the G-Buffer textures
         int[] textureIds = this.gBuffer.getTextureIds();
+
         int numTextures = textureIds != null ? textureIds.length : 0;
-        for (int i=0; i<numTextures; i++) {
+
+        for (int i = 0; i < numTextures; i++) {
             glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(GL_TEXTURE_2D, textureIds[i]);
         }
@@ -406,8 +408,10 @@ public class Renderer {
 
         // Bind the G-Buffer textures
         int[] textureIds = this.gBuffer.getTextureIds();
+
         int numTextures = textureIds != null ? textureIds.length : 0;
-        for (int i=0; i<numTextures; i++) {
+
+        for (int i = 0; i < numTextures; i++) {
             glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(GL_TEXTURE_2D, textureIds[i]);
         }
@@ -504,6 +508,7 @@ public class Renderer {
             InstancedMesh mesh = (InstancedMesh) emitter.getBaseParticle().getMultiMesh().getFirstMesh();
 
             Texture text = mesh.getMaterial().getTexture();
+
             particlesShaderProgram.setUniform("numCols", text.getNumCols());
             particlesShaderProgram.setUniform("numRows", text.getNumRows());
 
@@ -518,23 +523,29 @@ public class Renderer {
 
     private void renderSkyBox(Window window, Camera camera, Scene scene) {
         SkyBox skyBox = scene.getSkyBox();
+
         if (skyBox != null) {
             skyBoxShaderProgram.bind();
-
             skyBoxShaderProgram.setUniform("texture_sampler", 0);
 
             Matrix4f projectionMatrix = window.getProjectionMatrix();
+
             skyBoxShaderProgram.setUniform("projectionMatrix", projectionMatrix);
+
             Matrix4f viewMatrix = camera.getViewMatrix();
+
             float m30 = viewMatrix.m30();
             viewMatrix.m30(0);
+
             float m31 = viewMatrix.m31();
             viewMatrix.m31(0);
+
             float m32 = viewMatrix.m32();
             viewMatrix.m32(0);
 
             Mesh mesh = skyBox.getMultiMesh().getFirstMesh();
             Matrix4f modelViewMatrix = transformation.buildModelViewMatrix(skyBox, viewMatrix);
+
             skyBoxShaderProgram.setUniform("modelViewMatrix", modelViewMatrix);
             skyBoxShaderProgram.setUniform("ambientLight", scene.getSceneLight().getSkyBoxLight());
             skyBoxShaderProgram.setUniform("color", mesh.getMaterial().getDiffuseColor());
@@ -542,6 +553,7 @@ public class Renderer {
 
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, gBuffer.getDepthTexture());
+
             skyBoxShaderProgram.setUniform("screenSize", (float)window.getWidth(), (float)window.getHeight());
             skyBoxShaderProgram.setUniform("depthsText", 1);
 
@@ -550,6 +562,7 @@ public class Renderer {
             viewMatrix.m30(m30);
             viewMatrix.m31(m31);
             viewMatrix.m32(m32);
+
             skyBoxShaderProgram.unbind();
         }
     }
@@ -559,10 +572,12 @@ public class Renderer {
 
         // Render each mesh with the associated game Items
         Map<Mesh, List<GameItem>> mapMeshes = scene.getGameMeshes();
+
         for (Mesh mesh : mapMeshes.keySet()) {
             gBufferShaderProgram.setUniform("material", mesh.getMaterial());
 
             Texture text = mesh.getMaterial().getTexture();
+
             if (text != null) {
                 gBufferShaderProgram.setUniform("numCols", text.getNumCols());
                 gBufferShaderProgram.setUniform("numRows", text.getNumRows());
@@ -570,15 +585,17 @@ public class Renderer {
 
             mesh.renderList(mapMeshes.get(mesh), (GameItem gameItem) -> {
                 gBufferShaderProgram.setUniform("selectedNonInstanced", gameItem.isSelected() ? 1.0f : 0.0f);
+
                 Matrix4f modelMatrix = transformation.buildModelMatrix(gameItem);
+
                 gBufferShaderProgram.setUniform("modelNonInstancedMatrix", modelMatrix);
+
                 if (gameItem instanceof AnimGameItem) {
                     AnimGameItem animGameItem = (AnimGameItem) gameItem;
                     AnimatedFrame frame = animGameItem.getCurrentAnimation().getCurrentFrame();
                     gBufferShaderProgram.setUniform("jointsMatrix", frame.getJointMatrices());
                 }
-            }
-            );
+            });
         }
     }
 
@@ -587,8 +604,10 @@ public class Renderer {
 
         // Render each mesh with the associated game Items
         Map<InstancedMesh, List<GameItem>> mapMeshes = scene.getGameInstancedMeshes();
+
         for (InstancedMesh mesh : mapMeshes.keySet()) {
             Texture text = mesh.getMaterial().getTexture();
+
             if (text != null) {
                 gBufferShaderProgram.setUniform("numCols", text.getNumCols());
                 gBufferShaderProgram.setUniform("numRows", text.getNumRows());
@@ -597,6 +616,7 @@ public class Renderer {
             gBufferShaderProgram.setUniform("material", mesh.getMaterial());
 
             filteredItems.clear();
+
             for (GameItem gameItem : mapMeshes.get(mesh)) {
                 if (gameItem.isInsideFrustum()) {
                     filteredItems.add(gameItem);
@@ -611,24 +631,31 @@ public class Renderer {
         if (shadowRenderer != null) {
             shadowRenderer.cleanup();
         }
+
         if (skyBoxShaderProgram != null) {
             skyBoxShaderProgram.cleanup();
         }
+
         if (particlesShaderProgram != null) {
             particlesShaderProgram.cleanup();
         }
+
         if (gBufferShaderProgram != null) {
             gBufferShaderProgram.cleanup();
         }
+
         if (dirLightShaderProgram != null) {
             dirLightShaderProgram.cleanup();
         }
+
         if (pointLightShaderProgram != null) {
             pointLightShaderProgram.cleanup();
         }
+
         if (gBuffer != null) {
-            gBuffer.cleanUp();
+            gBuffer.cleanup();
         }
+
         if (bufferPassMesh != null) {
             bufferPassMesh.cleanup();
         }

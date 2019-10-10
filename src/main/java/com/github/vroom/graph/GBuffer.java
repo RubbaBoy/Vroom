@@ -1,7 +1,7 @@
 package com.github.vroom.graph;
 
-import org.lwjgl.system.MemoryStack;
 import com.github.vroom.Window;
+import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -60,9 +60,11 @@ public class GBuffer {
 
         // Create textures for position, diffuse color, specular color, normal, shadow factor and depth
         // All coordinates are in world coordinates system
-        for(int i=0; i<TOTAL_TEXTURES; i++) {
+        for(int i = 0; i < TOTAL_TEXTURES; i++) {
             glBindTexture(GL_TEXTURE_2D, textureIds[i]);
+
             int attachmentType;
+
             switch(i) {
                 case TOTAL_TEXTURES - 1:
                     // Depth component
@@ -75,6 +77,7 @@ public class GBuffer {
                     attachmentType = GL_COLOR_ATTACHMENT0 + i;
                     break;
             }
+
             // For sampling
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -85,11 +88,15 @@ public class GBuffer {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer intBuff = stack.mallocInt(TOTAL_TEXTURES);
+
             int[] values = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5};
+
             for(int i = 0; i < values.length; i++) {
                 intBuff.put(values[i]);
             }
+
             intBuff.flip();
+
             glDrawBuffers(intBuff);
         }
 
@@ -121,7 +128,7 @@ public class GBuffer {
         return textureIds[TOTAL_TEXTURES-1];
     }
 
-    public void cleanUp() {
+    public void cleanup() {
         glDeleteFramebuffers(gBufferId);
 
         if (textureIds != null) {
